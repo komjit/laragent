@@ -1,0 +1,6 @@
+pdf/*
+!pdf/.gitkeep
+xmls/*
+!xmls/.gitkeep
+logs/*
+!logs/.gitkeep
