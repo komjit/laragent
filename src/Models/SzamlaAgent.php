@@ -59,17 +59,17 @@ class SzamlaAgent
     /**
      * PDF dokumentumok útvonala
      */
-    const PDF_FILE_SAVE_PATH = __DIR__.'/storage/laragent/pdf';
+    const PDF_FILE_SAVE_PATH = '/storage/laragent/pdf';
 
     /**
      * XML fájlok útvonala
      */
-    const XML_FILE_SAVE_PATH = __DIR__.'/storage/laragent/xmls';
+    const XML_FILE_SAVE_PATH = '/storage/laragent/xmls';
 
     /**
      * Fájl mellékletek útvonala
      */
-    const ATTACHMENTS_SAVE_PATH = __DIR__.'/storage/laragent/attachments';
+    const ATTACHMENTS_SAVE_PATH = '/storage/laragent/attachments';
 
     /**
      * Naplózási szint

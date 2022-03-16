@@ -17,7 +17,7 @@ class Log
     /**
      * Naplók alapértelmezett útvonala
      */
-    const LOG_PATH = __DIR__.'/storage/logs/laragent';
+    const LOG_PATH = '/storage/logs/laragent';
 
     /**
      * Naplózási szint: nincs naplózás
@@ -139,7 +139,7 @@ class Log
     public static function writeLog($pMessage, $pType = self::LOG_LEVEL_DEBUG, $pEmail = '')
     {
         $log = Log::get();
-        $filename = $log->getLogPath().DIRECTORY_SEPARATOR.$log->getLogFileName();
+        $filename = base_path().DIRECTORY_SEPARATOR.$log->getLogPath().DIRECTORY_SEPARATOR.$log->getLogFileName();
         $remoteAddr = (isset($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : '';
         $message = '[' . date('Y-m-d H:i:s') . '] [' . $remoteAddr . '] [' . $log->getLogTypeStr($pType) . '] ' . $pMessage . PHP_EOL;
 
