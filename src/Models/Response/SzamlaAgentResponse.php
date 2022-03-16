@@ -258,7 +258,7 @@ class SzamlaAgentResponse {
      * @return bool|string
      */
     public function getPdfFileName() {
-        return SzamlaAgentUtil::getAbsPath(SzamlaAgent::PDF_FILE_SAVE_PATH, $this->getDocumentNumber() . '.pdf');
+        return SzamlaAgent::PDF_FILE_SAVE_PATH.DIRECTORY_SEPARATOR.$this->getDocumentNumber() . '.pdf';
     }
 
     /**
