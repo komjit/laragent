@@ -4,3 +4,4 @@ xmls/*
 !xmls/.gitkeep
 logs/*
 !logs/.gitkeep
+.idea

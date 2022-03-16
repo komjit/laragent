@@ -17,7 +17,7 @@ class Log
     /**
      * Naplók alapértelmezett útvonala
      */
-    const LOG_PATH = './logs';
+    const LOG_PATH = '../../../storage/logs/laragent';
 
     /**
      * Naplózási szint: nincs naplózás
