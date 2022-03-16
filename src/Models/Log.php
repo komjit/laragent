@@ -139,7 +139,7 @@ class Log
     public static function writeLog($pMessage, $pType = self::LOG_LEVEL_DEBUG, $pEmail = '')
     {
         $log = Log::get();
-        $filename = base_path().DIRECTORY_SEPARATOR.$log->getLogPath().DIRECTORY_SEPARATOR.$log->getLogFileName();
+        $filename = base_path().$log->getLogPath().DIRECTORY_SEPARATOR.$log->getLogFileName();
         $remoteAddr = (isset($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : '';
         $message = '[' . date('Y-m-d H:i:s') . '] [' . $remoteAddr . '] [' . $log->getLogTypeStr($pType) . '] ' . $pMessage . PHP_EOL;
 
