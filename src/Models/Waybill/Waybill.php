@@ -11,7 +11,8 @@ use KomjIT\LarAgent\Models\SzamlaAgentUtil;
  *
  * @package SzamlaAgent\Waybill
  */
-class Waybill {
+class Waybill
+{
 
     // Transoflex
     const WAYBILL_TYPE_TRANSOFLEX = 'Transoflex';
@@ -56,12 +57,13 @@ class Waybill {
     /**
      * Fuvarlevél létrehozása
      *
-     * @param string  $destination  Úti cél
-     * @param string  $parcel       Futárszolgálat neve
-     * @param string  $barcode      Vonalkód
-     * @param string  $comment      fuvarlevél megjegyzés
+     * @param string $destination Úti cél
+     * @param string $parcel Futárszolgálat neve
+     * @param string $barcode Vonalkód
+     * @param string $comment fuvarlevél megjegyzés
      */
-    protected function __construct($destination = '', $parcel = '', $barcode = '', $comment = '') {
+    protected function __construct($destination = '', $parcel = '', $barcode = '', $comment = '')
+    {
         $this->setDestination($destination);
         $this->setParcel($parcel);
         $this->setBarcode($barcode);
@@ -77,7 +79,8 @@ class Waybill {
      * @return string
      * @throws SzamlaAgentException
      */
-    protected function checkField($field, $value) {
+    protected function checkField($field, $value)
+    {
         if (property_exists($this, $field)) {
             switch ($field) {
                 case 'destination':
@@ -98,7 +101,8 @@ class Waybill {
      *
      * @throws SzamlaAgentException
      */
-    protected function checkFields($entity = null) {
+    protected function checkFields($entity = null)
+    {
         $fields = get_object_vars($this);
         foreach ($fields as $field => $value) {
             if (get_class() == $entity) {
@@ -115,14 +119,15 @@ class Waybill {
      * @return array
      * @throws SzamlaAgentException
      */
-    public function buildXmlData(SzamlaAgentRequest $request) {
+    public function buildXmlData(SzamlaAgentRequest $request)
+    {
         $data = [];
         self::checkFields(get_class());
 
         if (SzamlaAgentUtil::isNotBlank($this->getDestination())) $data['uticel'] = $this->getDestination();
-        if (SzamlaAgentUtil::isNotBlank($this->getParcel()))      $data['futarSzolgalat'] = $this->getParcel();
-        if (SzamlaAgentUtil::isNotBlank($this->getBarcode()))     $data['vonalkod'] = $this->getBarcode();
-        if (SzamlaAgentUtil::isNotBlank($this->getComment()))     $data['megjegyzes'] = $this->getComment();
+        if (SzamlaAgentUtil::isNotBlank($this->getParcel())) $data['futarSzolgalat'] = $this->getParcel();
+        if (SzamlaAgentUtil::isNotBlank($this->getBarcode())) $data['vonalkod'] = $this->getBarcode();
+        if (SzamlaAgentUtil::isNotBlank($this->getComment())) $data['megjegyzes'] = $this->getComment();
 
         return $data;
     }
@@ -130,56 +135,64 @@ class Waybill {
     /**
      * @return string
      */
-    public function getDestination() {
+    public function getDestination()
+    {
         return $this->destination;
     }
 
     /**
      * @param string $destination
      */
-    public function setDestination($destination) {
+    public function setDestination($destination)
+    {
         $this->destination = $destination;
     }
 
     /**
      * @return string
      */
-    public function getParcel() {
+    public function getParcel()
+    {
         return $this->parcel;
     }
 
     /**
      * @param string $parcel
      */
-    public function setParcel($parcel) {
+    public function setParcel($parcel)
+    {
         $this->parcel = $parcel;
     }
 
     /**
      * @return string
      */
-    public function getBarcode() {
+    public function getBarcode()
+    {
         return $this->barcode;
     }
 
     /**
      * @param string $barcode
      */
-    public function setBarcode($barcode) {
+    public function setBarcode($barcode)
+    {
         $this->barcode = $barcode;
     }
 
     /**
      * @return string
      */
-    public function getComment() {
+    public function getComment()
+    {
         return $this->comment;
     }
 
     /**
      * @param string $comment
      */
-    public function setComment($comment) {
+    public function setComment($comment)
+    {
         $this->comment = $comment;
     }
 }

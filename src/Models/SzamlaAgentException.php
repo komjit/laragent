@@ -2,14 +2,14 @@
 
 namespace KomjIT\LarAgent\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Exception;
 
 /**
  * Számla Agent egyedi kivételeket kezelő osztály
  *
  * @package LarAgent
  */
-class SzamlaAgentException extends \Exception
+class SzamlaAgentException extends Exception
 {
     const SYSTEM_DOWN = 'Az oldal jelenleg karbantartás alatt áll. Kérjük, látogass vissza pár perc múlva.';
     const REQUEST_TYPE_NOT_EXISTS = 'A kérés típusa nem létezik';
@@ -19,6 +19,7 @@ class SzamlaAgentException extends \Exception
     const XML_KEY_NOT_EXISTS = 'XML kulcs nem létezik';
     const XML_NOT_VALID = 'Az összeállított XML nem érvényes';
     const XML_DATA_NOT_AVAILABLE = 'Hiba történt az XML adatok összeállításánál: nincs adat.';
+    const XML_DATA_BUILD_FAILED = 'Az XML adatok összeállítása sikertelen';
     const FIELDS_CHECK_ERROR = 'Hiba a mezők ellenőrzése közben';
     const CONNECTION_METHOD_CANNOT_BE_DETERMINED = 'A kapcsolódási mód típusa nem meghatározható';
     const DATE_FORMAT_NOT_EXISTS = 'Nincs ilyen dátum formátum';
@@ -35,15 +36,18 @@ class SzamlaAgentException extends \Exception
     const FILE_CREATION_FAILED = 'A fájl létrehozása sikertelen.';
     const ATTACHMENT_NOT_EXISTS = 'A csatolandó fájl nem létezik';
     const SENDING_ATTACHMENT_NOT_ALLOWED = 'Számlamelléklet csatolása csak CURL kérés esetén támogatott!';
+    const INVOICE_NOTIFICATION_SEND_FAILED = 'Számlaértesítő kézbesítése sikertelen';
+    const INVALID_JSON = 'Érvénytelen JSON';
+    const INVOICE_EXTERNAL_ID_IS_EMPTY = 'A külső számlaazonosító üres';
 
     /**
      * Számla Agent egyedi kivétel létrehozása
      *
      * @param string $message
      * @param int $code
-     * @param \Exception $previous
+     * @param Exception $previous
      */
-    public function __construct($message, $code = 0, \Exception $previous = null)
+    public function __construct($message, $code = 0, Exception $previous = null)
     {
         parent::__construct($message, $code, $previous);
     }

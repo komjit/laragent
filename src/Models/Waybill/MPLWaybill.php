@@ -11,7 +11,8 @@ use KomjIT\LarAgent\Models\SzamlaAgentUtil;
  *
  * @package SzamlaAgent\Waybill
  */
-class MPLWaybill extends Waybill {
+class MPLWaybill extends Waybill
+{
 
     /**
      * MPL vevőkód
@@ -58,18 +59,20 @@ class MPLWaybill extends Waybill {
     /**
      * MPL fuvarlevél létrehozása
      *
-     * @param string  $destination  Úti cél
-     * @param string  $barcode      Vonalkód
-     * @param string  $comment      fuvarlevél megjegyzés
+     * @param string $destination Úti cél
+     * @param string $barcode Vonalkód
+     * @param string $comment fuvarlevél megjegyzés
      */
-    function __construct($destination = '', $barcode = '', $comment = '') {
+    function __construct($destination = '', $barcode = '', $comment = '')
+    {
         parent::__construct($destination, self::WAYBILL_TYPE_MPL, $barcode, $comment);
     }
 
     /**
      * @return array
      */
-    protected function getRequiredFields() {
+    protected function getRequiredFields()
+    {
         return $this->requiredFields;
     }
 
@@ -82,7 +85,8 @@ class MPLWaybill extends Waybill {
      * @return string
      * @throws SzamlaAgentException
      */
-    protected function checkField($field, $value) {
+    protected function checkField($field, $value)
+    {
         if (property_exists($this, $field)) {
             $required = in_array($field, $this->getRequiredFields());
             switch ($field) {
@@ -106,7 +110,8 @@ class MPLWaybill extends Waybill {
      * @return array
      * @throws SzamlaAgentException
      */
-    public function buildXmlData(SzamlaAgentRequest $request) {
+    public function buildXmlData(SzamlaAgentRequest $request)
+    {
         $this->checkFields(get_class());
         $data = parent::buildXmlData($request);
 
@@ -129,56 +134,64 @@ class MPLWaybill extends Waybill {
     /**
      * @return string
      */
-    public function getBuyerCode() {
+    public function getBuyerCode()
+    {
         return $this->buyerCode;
     }
 
     /**
      * @param string $buyerCode
      */
-    public function setBuyerCode($buyerCode) {
+    public function setBuyerCode($buyerCode)
+    {
         $this->buyerCode = $buyerCode;
     }
 
     /**
      * @return string
      */
-    public function getWeight() {
+    public function getWeight()
+    {
         return $this->weight;
     }
 
     /**
      * @param string $weight
      */
-    public function setWeight($weight) {
+    public function setWeight($weight)
+    {
         $this->weight = $weight;
     }
 
     /**
      * @return string
      */
-    public function getService() {
+    public function getService()
+    {
         return $this->service;
     }
 
     /**
      * @param string $service
      */
-    public function setService($service) {
+    public function setService($service)
+    {
         $this->service = $service;
     }
 
     /**
      * @return float
      */
-    public function getInsuredValue() {
+    public function getInsuredValue()
+    {
         return $this->insuredValue;
     }
 
     /**
      * @param float $insuredValue
      */
-    public function setInsuredValue($insuredValue) {
+    public function setInsuredValue($insuredValue)
+    {
         $this->insuredValue = (float)$insuredValue;
     }
 }

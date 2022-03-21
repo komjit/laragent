@@ -17,7 +17,8 @@ class ReverseReceipt extends Receipt
      *
      * @param string $receiptNumber
      */
-    public function __construct($receiptNumber = '') {
+    public function __construct($receiptNumber = '')
+    {
         parent::__construct(null);
         $this->setHeader(new ReverseReceiptHeader($receiptNumber));
     }

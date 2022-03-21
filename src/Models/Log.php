@@ -15,9 +15,9 @@ class Log
     const LOG_FILENAME = 'szamlaagent';
 
     /**
-     * Naplók alapértelmezett útvonala
+     * Naplók útvonala
      */
-    const LOG_PATH = '/storage/laragent/logs';
+    const LOG_PATH = './logs';
 
     /**
      * Naplózási szint: nincs naplózás
@@ -133,23 +133,20 @@ class Log
      * @param string $pMessage
      * @param int $pType
      * @param string $pEmail
-     *
-     * @throws SzamlaAgentException
      */
     public static function writeLog($pMessage, $pType = self::LOG_LEVEL_DEBUG, $pEmail = '')
     {
         $log = Log::get();
-        $filename = base_path().$log->getLogPath().DIRECTORY_SEPARATOR.$log->getLogFileName();
+        $filename = SzamlaAgentUtil::getAbsPath($log->getLogPath(), $log->getLogFileName());
         $remoteAddr = (isset($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : '';
-        $message = '[' . date('Y-m-d H:i:s') . '] [' . $remoteAddr . '] [' . $log->getLogTypeStr($pType) . '] ' . $pMessage . PHP_EOL;
+        $logType = SzamlaAgentUtil::isNotBlank($log->getLogTypeStr($pType)) ? ' [' . $log->getLogTypeStr($pType) . '] ' : '';
+        $message = '[' . date('Y-m-d H:i:s') . '] [' . $remoteAddr . ']' . $logType . $pMessage . PHP_EOL;
 
         error_log($message, 3, $filename);
 
         if (!empty($pEmail) && $pType == self::LOG_LEVEL_ERROR) {
             $headers = "Content-Type: text/html; charset=UTF-8";
             error_log($message, 1, $pEmail, $headers);
-        } elseif ($pType == self::LOG_LEVEL_ERROR) {
-            throw new SzamlaAgentException($pMessage);
         }
     }
 
@@ -157,9 +154,7 @@ class Log
      * Visszaadja a naplózás típusának elnevezését
      *
      * @param $type
-     *
      * @return string
-     * @throws SzamlaAgentException
      */
     protected function getLogTypeStr($type)
     {
@@ -174,7 +169,8 @@ class Log
                 $name = 'debug';
                 break;
             default:
-                throw new SzamlaAgentException("Nem létezik ilyen naplózási típus: {$type}.");
+                $name = '';
+                break;
         }
         return $name;
     }

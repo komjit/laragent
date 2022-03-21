@@ -2,6 +2,11 @@
 
 namespace KomjIT\LarAgent\Models;
 
+use DateTime;
+use DOMDocument;
+use ReflectionClass;
+use SimpleXMLElement;
+
 /**
  * A Számla Agent közösen használt, hasznos funkcióinak osztálya
  *
@@ -13,6 +18,11 @@ class SzamlaAgentUtil
      * Alapértelmezetten hozzáadott napok száma
      */
     const DEFAULT_ADDED_DAYS = 8;
+
+    /**
+     * Alapértelmezett útvonal
+     */
+    const DEFAULT_BASE_PATH = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR;
 
     /**
      * Pontos dátum (Y-m-d) formátumban
@@ -28,6 +38,11 @@ class SzamlaAgentUtil
      * Aktuális időbélyeg
      */
     const DATE_FORMAT_TIMESTAMP = 'timestamp';
+
+    /**
+     * Számla Agent API által generált fájlok alapértelmezett útvonala
+     */
+    private static $basePath = self::DEFAULT_BASE_PATH;
 
 
     /**
@@ -46,7 +61,7 @@ class SzamlaAgentUtil
         $newDate = self::getToday();
 
         if (!empty($date)) {
-            $newDate = new \DateTime($date);
+            $newDate = new DateTime($date);
         }
         $newDate->modify("+{$count} day");
         return self::getDateStr($newDate);
@@ -55,13 +70,13 @@ class SzamlaAgentUtil
     /**
      * A kapott dátumot formázott szövegként adja vissza (típustól függően)
      *
-     * @param \DateTime $date
+     * @param DateTime $date
      * @param string $format
      *
      * @return mixed
      * @throws SzamlaAgentException
      */
-    public static function getDateStr(\DateTime $date, $format = self::DATE_FORMAT_DATE)
+    public static function getDateStr(DateTime $date, $format = self::DATE_FORMAT_DATE)
     {
         switch ($format) {
             case self::DATE_FORMAT_DATE:
@@ -82,12 +97,12 @@ class SzamlaAgentUtil
     /**
      * Visszaadja a mai dátumot
      *
-     * @return \DateTime
+     * @return DateTime
      * @throws \Exception
      */
     public static function getToday()
     {
-        return new \DateTime('now');
+        return new DateTime('now');
     }
 
     /**
@@ -112,9 +127,9 @@ class SzamlaAgentUtil
      */
     public static function isValidDate($date)
     {
-        $parsedDate = \DateTime::createFromFormat('Y-m-d', $date);
+        $parsedDate = DateTime::createFromFormat('Y-m-d', $date);
 
-        if (\DateTime::getLastErrors()['warning_count'] > 0 || !checkdate($parsedDate->format("m"), $parsedDate->format("d"), $parsedDate->format("Y"))) {
+        if (DateTime::getLastErrors()['warning_count'] > 0 || !checkdate($parsedDate->format("m"), $parsedDate->format("d"), $parsedDate->format("Y"))) {
             return false;
         }
 
@@ -151,25 +166,50 @@ class SzamlaAgentUtil
     public static function getXmlFileName($prefix, $name, $entity = null)
     {
         if (!empty($name) && !empty($entity)) {
-            $name .= '-' . (new \ReflectionClass($entity))->getShortName();
+            $name .= '-' . (new ReflectionClass($entity))->getShortName();
         }
 
-        $fileName = $prefix . '-' . strtolower($name) . '-' . date('YmdHis') . '.xml';
-        return base_path().SzamlaAgent::XML_FILE_SAVE_PATH.DIRECTORY_SEPARATOR.$fileName;
+        $fileName = $prefix . '-' . strtolower($name) . '-' . self::getDateTimeWithMilliseconds() . '.xml';
+        return self::getAbsPath(SzamlaAgent::XML_FILE_SAVE_PATH, $fileName);
+    }
+
+
+    /**
+     * @return string
+     */
+    public static function getDateTimeWithMilliseconds()
+    {
+        return date("YmdHis") . substr(microtime(FALSE), 2, 5);
     }
 
     /**
      * Visszaadja a SimpleXMLElement tartalmát formázott xml-ként
      *
-     * @param \SimpleXMLElement $simpleXMLElement
-     * @return \DOMDocument
+     * @param SimpleXMLElement $simpleXMLElement
+     * @return DOMDocument
      */
-    public static function formatXml(\SimpleXMLElement $simpleXMLElement)
+    public static function formatXml(SimpleXMLElement $simpleXMLElement)
     {
-        $xmlDocument = new \DOMDocument('1.0');
+        $xmlDocument = new DOMDocument('1.0');
         $xmlDocument->preserveWhiteSpace = false;
         $xmlDocument->formatOutput = true;
         $xmlDocument->loadXML($simpleXMLElement->asXML());
+        return $xmlDocument;
+    }
+
+    /**
+     * Visszaadja a response tartalmát formázott xml-ként
+     *
+     * @param string $response
+     *
+     * @return DOMDocument
+     */
+    public static function formatResponseXml($response)
+    {
+        $xmlDocument = new DOMDocument('1.0');
+        $xmlDocument->preserveWhiteSpace = false;
+        $xmlDocument->formatOutput = true;
+        $xmlDocument->loadXML($response);
         return $xmlDocument;
     }
 
@@ -184,7 +224,7 @@ class SzamlaAgentUtil
     {
         libxml_use_internal_errors(true);
 
-        $doc = new \DOMDocument('1.0', 'utf-8');
+        $doc = new DOMDocument('1.0', 'utf-8');
         $doc->loadXML($xmlContent);
 
         $result = libxml_get_errors();
@@ -226,7 +266,48 @@ class SzamlaAgentUtil
      */
     public static function getBasePath()
     {
-        return self::getRealPath(__DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR);
+        if (self::isBlank(self::$basePath)) {
+            return self::getRealPath(self::DEFAULT_BASE_PATH);
+        } else {
+            return self::getRealPath(self::$basePath);
+        }
+    }
+
+    /**
+     * Beállítja a Számla Agent által generált fájlok alapértelmezett útvonalát
+     *
+     * Fontos! Ezzel a beállítással módosítod a mellékletek, a létrehozott pdf és xml, illetve naplózási fájlok alapértelmezett mappáját.
+     * Ellenőrizd a beállított útvonalon a PHP írási jogosultságát.
+     *
+     * @param string $basePath
+     */
+    public static function setBasePath($basePath)
+    {
+        self::$basePath = $basePath;
+    }
+
+    /**
+     * @return string
+     */
+    public static function getXmlPath()
+    {
+        return self::getBasePath() . DIRECTORY_SEPARATOR . SzamlaAgent::XML_FILE_SAVE_PATH;
+    }
+
+    /**
+     * @return string
+     */
+    public static function getPdfPath()
+    {
+        return self::getBasePath() . DIRECTORY_SEPARATOR . SzamlaAgent::PDF_FILE_SAVE_PATH;
+    }
+
+    /**
+     * @return string
+     */
+    public static function getLogPath()
+    {
+        return self::getBasePath() . DIRECTORY_SEPARATOR . Log::LOG_PATH;
     }
 
     /**
@@ -235,7 +316,7 @@ class SzamlaAgentUtil
      */
     public static function getDefaultAttachmentPath($fileName)
     {
-        return base_path().SzamlaAgent::ATTACHMENTS_SAVE_PATH . DIRECTORY_SEPARATOR . $fileName;
+        return self::getRealPath(self::getBasePath() . DIRECTORY_SEPARATOR . SzamlaAgent::ATTACHMENTS_SAVE_PATH . DIRECTORY_SEPARATOR . $fileName);
     }
 
     /**
@@ -458,5 +539,135 @@ class SzamlaAgentUtil
     public static function isNotNull($value)
     {
         return (null !== $value);
+    }
+
+    /**
+     * @param SimpleXMLElement $xmlNode
+     * @param string $name
+     * @param array $data
+     */
+    public static function addChildArray(SimpleXMLElement $xmlNode, $name, $data)
+    {
+        $node = $xmlNode->addChild($name);
+
+        foreach ($data as $key => $value) {
+            if (is_array($value)) {
+                self::addChildArray($node, $key, $value);
+            } else {
+                $node->addChild($key, $value);
+            }
+        }
+    }
+
+    /**
+     * Remove namespaces from XML elements
+     *
+     * @param SimpleXMLElement $xmlNode
+     * @return SimpleXMLElement $xmlNode
+     */
+    public static function removeNamespaces(SimpleXMLElement $xmlNode)
+    {
+        $xmlString = $xmlNode->asXML();
+        $cleanedXmlString = preg_replace('/(<\/|<)[a-z0-9]+:([a-z0-9]+[ =>])/i', '$1$2', $xmlString);
+        $cleanedXmlNode = simplexml_load_string($cleanedXmlString);
+        return $cleanedXmlNode;
+    }
+
+    /**
+     * @param $string
+     *
+     * @return mixed
+     * @throws SzamlaAgentException
+     */
+    public static function isValidJSON($string)
+    {
+        // decode the JSON data
+        $result = json_decode($string);
+        // switch and check possible JSON errors
+        switch (json_last_error()) {
+            case JSON_ERROR_NONE:
+                $error = '';
+                break;
+            case JSON_ERROR_DEPTH:
+                $error = 'The maximum stack depth has been exceeded.';
+                break;
+            case JSON_ERROR_STATE_MISMATCH:
+                $error = 'Invalid or malformed JSON.';
+                break;
+            case JSON_ERROR_CTRL_CHAR:
+                $error = 'Control character error, possibly incorrectly encoded.';
+                break;
+            case JSON_ERROR_SYNTAX:
+                $error = 'Syntax error, malformed JSON.';
+                break;
+            // PHP >= 5.3.3
+            case JSON_ERROR_UTF8:
+                $error = 'Malformed UTF-8 characters, possibly incorrectly encoded.';
+                break;
+            // PHP >= 5.5.0
+            case JSON_ERROR_RECURSION:
+                $error = 'One or more recursive references in the value to be encoded.';
+                break;
+            // PHP >= 5.5.0
+            case JSON_ERROR_INF_OR_NAN:
+                $error = 'One or more NAN or INF values in the value to be encoded.';
+                break;
+            case JSON_ERROR_UNSUPPORTED_TYPE:
+                $error = 'A value of a type that cannot be encoded was given.';
+                break;
+            default:
+                $error = 'Unknown JSON error occured.';
+                break;
+        }
+
+        if ($error !== '') {
+            throw new SzamlaAgentException($error);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Törli az xml mappából az összes xml fájlt
+     */
+    public static function emptyXmlDir()
+    {
+        self::deleteFilesFromDir(realpath(self::getXmlPath()), 'xml');
+    }
+
+    /**
+     * Törli a pdf mappából az összes pdf fájlt
+     */
+    public static function emptyPdfDir()
+    {
+        self::deleteFilesFromDir(realpath(self::getPdfPath()), 'pdf');
+    }
+
+    /**
+     * Törli a log mappából az összes log fájlt
+     */
+    public static function emptyLogDir()
+    {
+        self::deleteFilesFromDir(realpath(self::getLogPath()), 'log');
+    }
+
+    /**
+     * Törli a fájlokat a megadott könyvtárból.
+     * Ha meg van adva a törlendő fájlok kiterjesztése, akkor csak azokat a típusú fájlokat törli.
+     *
+     * @param string $dir
+     * @param string $extension
+     */
+    protected static function deleteFilesFromDir($dir, $extension = null)
+    {
+        if (self::isNotBlank($dir) && is_dir($dir)) {
+            $filter = (self::isNotBlank($extension) ? '*.' . $extension : '*');
+            $files = glob($dir . DIRECTORY_SEPARATOR . $filter);
+            foreach ($files as $file) {
+                if (is_file($file)) {
+                    unlink($file);
+                }
+            }
+        }
     }
 }

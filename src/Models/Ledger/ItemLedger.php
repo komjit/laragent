@@ -7,7 +7,8 @@ namespace KomjIT\LarAgent\Models\Ledger;
  *
  * @package LarAgent\Ledger
  */
-class ItemLedger {
+class ItemLedger
+{
 
     /**
      * Árbevétel főkönyvi szám
@@ -27,9 +28,10 @@ class ItemLedger {
      * Tétel főkönyvi adatok létrehozása
      *
      * @param string $revenueLedgerNumber Árbevétel főkönyvi szám
-     * @param string $vatLedgerNumber     ÁFA főkönyvi szám
+     * @param string $vatLedgerNumber ÁFA főkönyvi szám
      */
-    protected function __construct($revenueLedgerNumber = '', $vatLedgerNumber = '') {
+    protected function __construct($revenueLedgerNumber = '', $vatLedgerNumber = '')
+    {
         $this->setRevenueLedgerNumber($revenueLedgerNumber);
         $this->setVatLedgerNumber($vatLedgerNumber);
     }
@@ -37,28 +39,32 @@ class ItemLedger {
     /**
      * @return string
      */
-    public function getRevenueLedgerNumber() {
+    public function getRevenueLedgerNumber()
+    {
         return $this->revenueLedgerNumber;
     }
 
     /**
      * @param string $revenueLedgerNumber
      */
-    public function setRevenueLedgerNumber($revenueLedgerNumber) {
+    public function setRevenueLedgerNumber($revenueLedgerNumber)
+    {
         $this->revenueLedgerNumber = $revenueLedgerNumber;
     }
 
     /**
      * @return string
      */
-    public function getVatLedgerNumber() {
+    public function getVatLedgerNumber()
+    {
         return $this->vatLedgerNumber;
     }
 
     /**
      * @param string $vatLedgerNumber
      */
-    public function setVatLedgerNumber($vatLedgerNumber) {
+    public function setVatLedgerNumber($vatLedgerNumber)
+    {
         $this->vatLedgerNumber = $vatLedgerNumber;
     }
 }

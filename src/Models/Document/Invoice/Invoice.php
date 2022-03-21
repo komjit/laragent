@@ -22,25 +22,20 @@ use KomjIT\LarAgent\Models\SzamlaAgentUtil;
  */
 class Invoice extends Document
 {
-    /**
-     * Számla típus: papír számla
-     */
+    /** Számla típus: papír számla */
     const INVOICE_TYPE_P_INVOICE = 1;
 
-    /**
-     * Számla típus: e-számla
-     */
+    /** Számla típus: e-számla */
     const INVOICE_TYPE_E_INVOICE = 2;
 
-    /**
-     * Számla lekérdezése számlaszám alapján
-     */
+    /** Számla lekérdezése számlaszám alapján */
     const FROM_INVOICE_NUMBER = 1;
 
-    /**
-     * Számla lekérdezése rendelési szám alapján
-     */
+    /** Számla lekérdezése rendelési szám alapján */
     const FROM_ORDER_NUMBER = 2;
+
+    /** Számla lekérdezése külső számlaazonosító alapján */
+    const FROM_INVOICE_EXTERNAL_ID = 3;
 
     /**
      * Jóváírások maximális száma
@@ -48,10 +43,23 @@ class Invoice extends Document
      */
     const CREDIT_NOTES_LIMIT = 5;
 
-    /**
-     * Számlához csatolandó fájlok maximális száma
-     */
+    /** Számlához csatolandó fájlok maximális száma */
     const INVOICE_ATTACHMENTS_LIMIT = 5;
+
+    /** Számlázz.hu ajánlott számlakép */
+    const INVOICE_TEMPLATE_DEFAULT = 'SzlaMost';
+
+    /** Tradicionális számlakép */
+    const INVOICE_TEMPLATE_TRADITIONAL = 'SzlaAlap';
+
+    /** Borítékbarát számlakép */
+    const INVOICE_TEMPLATE_ENV_FRIENDLY = 'SzlaNoEnv';
+
+    /** Hőnyomtatós számlakép (8 cm széles) */
+    const INVOICE_TEMPLATE_8CM = 'Szla8cm';
+
+    /** Retró kéziszámla számlakép */
+    const INVOICE_TEMPLATE_RETRO = 'SzlaTomb';
 
 
     /**
@@ -123,7 +131,8 @@ class Invoice extends Document
      *
      * @throws SzamlaAgentException
      */
-    public function __construct($type = self::INVOICE_TYPE_P_INVOICE) {
+    public function __construct($type = self::INVOICE_TYPE_P_INVOICE)
+    {
         // Alapértelmezett fejléc adatok hozzáadása a számlához
         if (!empty($type)) {
             $this->setHeader(new InvoiceHeader($type));
@@ -133,77 +142,88 @@ class Invoice extends Document
     /**
      * @return InvoiceHeader
      */
-    public function getHeader() {
+    public function getHeader()
+    {
         return $this->header;
     }
 
     /**
      * @param InvoiceHeader $header
      */
-    public function setHeader(InvoiceHeader $header) {
+    public function setHeader(InvoiceHeader $header)
+    {
         $this->header = $header;
     }
 
     /**
      * @return Seller
      */
-    public function getSeller() {
+    public function getSeller()
+    {
         return $this->seller;
     }
 
     /**
      * @param Seller $seller
      */
-    public function setSeller(Seller $seller) {
+    public function setSeller(Seller $seller)
+    {
         $this->seller = $seller;
     }
 
     /**
      * @return Buyer
      */
-    public function getBuyer() {
+    public function getBuyer()
+    {
         return $this->buyer;
     }
 
     /**
      * @param Buyer $buyer
      */
-    public function setBuyer(Buyer $buyer) {
+    public function setBuyer(Buyer $buyer)
+    {
         $this->buyer = $buyer;
     }
 
     /**
      * @return Waybill
      */
-    public function getWaybill() {
+    public function getWaybill()
+    {
         return $this->waybill;
     }
 
     /**
      * @param Waybill $waybill
      */
-    public function setWaybill(Waybill $waybill) {
+    public function setWaybill(Waybill $waybill)
+    {
         $this->waybill = $waybill;
     }
 
     /**
      * @param InvoiceItem $item
      */
-    public function addItem(InvoiceItem $item) {
+    public function addItem(InvoiceItem $item)
+    {
         array_push($this->items, $item);
     }
 
     /**
      * @return InvoiceItem[]
      */
-    public function getItems() {
+    public function getItems()
+    {
         return $this->items;
     }
 
     /**
      * @param InvoiceItem[] $items
      */
-    public function setItems($items) {
+    public function setItems($items)
+    {
         $this->items = $items;
     }
 
@@ -212,7 +232,8 @@ class Invoice extends Document
      *
      * @param InvoiceCreditNote $creditNote
      */
-    public function addCreditNote(InvoiceCreditNote $creditNote) {
+    public function addCreditNote(InvoiceCreditNote $creditNote)
+    {
         if (count($this->creditNotes) < self::CREDIT_NOTES_LIMIT) {
             array_push($this->creditNotes, $creditNote);
         }
@@ -221,21 +242,24 @@ class Invoice extends Document
     /**
      * @return InvoiceCreditNote[]
      */
-    public function getCreditNotes() {
+    public function getCreditNotes()
+    {
         return $this->creditNotes;
     }
 
     /**
      * @param InvoiceCreditNote[] $creditNotes
      */
-    public function setCreditNotes(array $creditNotes) {
+    public function setCreditNotes(array $creditNotes)
+    {
         $this->creditNotes = $creditNotes;
     }
 
     /**
      * @return bool
      */
-    public function isAdditive() {
+    public function isAdditive()
+    {
         return $this->additive;
     }
 
@@ -255,7 +279,8 @@ class Invoice extends Document
      * @return array
      * @throws SzamlaAgentException
      */
-    public function buildXmlData(SzamlaAgentRequest $request) {
+    public function buildXmlData(SzamlaAgentRequest $request)
+    {
         switch ($request->getXmlName()) {
             case $request::XML_SCHEMA_CREATE_INVOICE:
                 $data = $this->buildFieldsData($request, ['beallitasok', 'fejlec', 'elado', 'vevo', 'fuvarlevel', 'tetelek']);
@@ -285,23 +310,36 @@ class Invoice extends Document
      * Összeállítja és visszaadja az adott mezőkhöz tartozó adatokat
      *
      * @param SzamlaAgentRequest $request
-     * @param array              $fields
+     * @param array $fields
      *
      * @return array
      * @throws SzamlaAgentException
      */
-    private function buildFieldsData(SzamlaAgentRequest $request, array $fields) {
+    private function buildFieldsData(SzamlaAgentRequest $request, array $fields)
+    {
         $data = [];
 
         if (!empty($fields)) {
             foreach ($fields as $key) {
                 switch ($key) {
-                    case 'beallitasok': $value = $request->getAgent()->getSetting()->buildXmlData($request); break;
-                    case 'fejlec':      $value = $this->getHeader()->buildXmlData($request); break;
-                    case 'tetelek':     $value = $this->buildXmlItemsData(); break;
-                    case 'elado':       $value = (SzamlaAgentUtil::isNotNull($this->getSeller()))  ? $this->getSeller()->buildXmlData($request)  : array(); break;
-                    case 'vevo':        $value = (SzamlaAgentUtil::isNotNull($this->getBuyer()))   ? $this->getBuyer()->buildXmlData($request)   : array(); break;
-                    case 'fuvarlevel':  $value = (SzamlaAgentUtil::isNotNull($this->getWaybill())) ? $this->getWaybill()->buildXmlData($request) : array(); break;
+                    case 'beallitasok':
+                        $value = $request->getAgent()->getSetting()->buildXmlData($request);
+                        break;
+                    case 'fejlec':
+                        $value = $this->getHeader()->buildXmlData($request);
+                        break;
+                    case 'tetelek':
+                        $value = $this->buildXmlItemsData();
+                        break;
+                    case 'elado':
+                        $value = (SzamlaAgentUtil::isNotNull($this->getSeller())) ? $this->getSeller()->buildXmlData($request) : array();
+                        break;
+                    case 'vevo':
+                        $value = (SzamlaAgentUtil::isNotNull($this->getBuyer())) ? $this->getBuyer()->buildXmlData($request) : array();
+                        break;
+                    case 'fuvarlevel':
+                        $value = (SzamlaAgentUtil::isNotNull($this->getWaybill())) ? $this->getWaybill()->buildXmlData($request) : array();
+                        break;
                     default:
                         throw new SzamlaAgentException(SzamlaAgentException::XML_KEY_NOT_EXISTS . ": {$key}");
                 }
@@ -320,7 +358,8 @@ class Invoice extends Document
      * @return array
      * @throws SzamlaAgentException
      */
-    protected function buildXmlItemsData() {
+    protected function buildXmlItemsData()
+    {
         $data = [];
 
         if (!empty($this->getItems())) {
@@ -337,7 +376,8 @@ class Invoice extends Document
      * @return array
      * @throws SzamlaAgentException
      */
-    protected function buildCreditsXmlData() {
+    protected function buildCreditsXmlData()
+    {
         $data = [];
         if (!empty($this->getCreditNotes())) {
             foreach ($this->getCreditNotes() as $key => $note) {
@@ -352,7 +392,8 @@ class Invoice extends Document
      *
      * @return array
      */
-    public function getAttachments() {
+    public function getAttachments()
+    {
         return $this->attachments;
     }
 
@@ -370,16 +411,17 @@ class Invoice extends Document
      *
      * @throws SzamlaAgentException
      */
-    public function addAttachment($filePath) {
+    public function addAttachment($filePath)
+    {
         if (empty($filePath)) {
             Log::writeLog("A csatolandó fájl neve nincs megadva!", Log::LOG_LEVEL_WARN);
         } else {
             if (count($this->attachments) >= self::INVOICE_ATTACHMENTS_LIMIT) {
-                throw new SzamlaAgentException('A következő fájl csatolása sikertelen: "' . $filePath. '". Egy számlához maximum ' . self::INVOICE_ATTACHMENTS_LIMIT . ' fájl csatolható!');
+                throw new SzamlaAgentException('A következő fájl csatolása sikertelen: "' . $filePath . '". Egy számlához maximum ' . self::INVOICE_ATTACHMENTS_LIMIT . ' fájl csatolható!');
             }
 
             if (!file_exists($filePath)) {
-                throw new SzamlaAgentException(SzamlaAgentException::ATTACHMENT_NOT_EXISTS . ': '. $filePath);
+                throw new SzamlaAgentException(SzamlaAgentException::ATTACHMENT_NOT_EXISTS . ': ' . $filePath);
             }
             array_push($this->attachments, $filePath);
         }

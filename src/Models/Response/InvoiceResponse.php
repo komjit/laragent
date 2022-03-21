@@ -3,12 +3,20 @@
 
 namespace KomjIT\LarAgent\Models\Response;
 
+use KomjIT\LarAgent\Models\SzamlaAgentUtil;
+
 /**
  * Egy számla típusú bizonylat kérésére adott választ reprezentáló osztály
  *
  * @package SzamlaAgent\Response
  */
-class InvoiceResponse {
+class InvoiceResponse
+{
+
+    /**
+     * Számlaértesítő kézbesítése sikertelen
+     */
+    const INVOICE_NOTIFICATION_SEND_FAILED = 56;
 
     /**
      * Vevői fiók URL
@@ -85,7 +93,8 @@ class InvoiceResponse {
      *
      * @param string $invoiceNumber
      */
-    public function __construct($invoiceNumber = '') {
+    public function __construct($invoiceNumber = '')
+    {
         $this->setInvoiceNumber($invoiceNumber);
     }
 
@@ -93,14 +102,15 @@ class InvoiceResponse {
      * Feldolgozás után visszaadja a számla válaszát objektumként
      *
      * @param array $data
-     * @param int   $type
+     * @param int $type
      *
      * @return InvoiceResponse
      */
-    public static function parseData(array $data, $type = SzamlaAgentResponse::RESULT_AS_TEXT) {
-        $payer   = new InvoiceResponse();
+    public static function parseData(array $data, $type = SzamlaAgentResponse::RESULT_AS_TEXT)
+    {
+        $response = new InvoiceResponse();
         $headers = $data['headers'];
-        $isPdf   = self::isPdfResponse($data);
+        $isPdf = self::isPdfResponse($data);
         $pdfFile = '';
 
         if (isset($data['body'])) {
@@ -110,46 +120,46 @@ class InvoiceResponse {
         }
 
         if (!empty($headers)) {
-            $payer->setHeaders($headers);
+            $response->setHeaders($headers);
 
             if (array_key_exists('szlahu_szamlaszam', $headers)) {
-                $payer->setInvoiceNumber($headers['szlahu_szamlaszam']);
+                $response->setInvoiceNumber($headers['szlahu_szamlaszam']);
             }
 
             if (array_key_exists('szlahu_vevoifiokurl', $headers)) {
-                $payer->setUserAccountUrl(rawurldecode($headers['szlahu_vevoifiokurl']));
+                $response->setUserAccountUrl(rawurldecode($headers['szlahu_vevoifiokurl']));
             }
 
             if (array_key_exists('szlahu_kintlevoseg', $headers)) {
-                $payer->setAssetAmount($headers['szlahu_kintlevoseg']);
+                $response->setAssetAmount($headers['szlahu_kintlevoseg']);
             }
 
             if (array_key_exists('szlahu_nettovegosszeg', $headers)) {
-                $payer->setNetPrice($headers['szlahu_nettovegosszeg']);
+                $response->setNetPrice($headers['szlahu_nettovegosszeg']);
             }
 
             if (array_key_exists('szlahu_bruttovegosszeg', $headers)) {
-                $payer->setGrossAmount($headers['szlahu_bruttovegosszeg']);
+                $response->setGrossAmount($headers['szlahu_bruttovegosszeg']);
             }
 
             if (array_key_exists('szlahu_error', $headers)) {
                 $error = urldecode($headers['szlahu_error']);
-                $payer->setErrorMessage($error);
+                $response->setErrorMessage($error);
             }
 
             if (array_key_exists('szlahu_error_code', $headers)) {
-                $payer->setErrorCode($headers['szlahu_error_code']);
+                $response->setErrorCode($headers['szlahu_error_code']);
             }
 
             if ($isPdf && !empty($pdfFile)) {
-                $payer->setPdfData($pdfFile);
+                $response->setPdfData($pdfFile);
             }
 
-            if ($payer->isNotError()) {
-                $payer->setSuccess(true);
+            if ($response->isNotError()) {
+                $response->setSuccess(true);
             }
         }
-        return $payer;
+        return $response;
     }
 
     /**
@@ -159,7 +169,8 @@ class InvoiceResponse {
      *
      * @return bool
      */
-    protected static function isPdfResponse($result) {
+    protected static function isPdfResponse($result)
+    {
         if (isset($result['pdf'])) {
             return true;
         }
@@ -168,10 +179,20 @@ class InvoiceResponse {
             return true;
         }
 
-        if (isset($result['headers']['Content-Disposition']) && stripos($result['headers']['Content-Disposition'],'pdf') !== false) {
+        if (isset($result['headers']['Content-Disposition']) && stripos($result['headers']['Content-Disposition'], 'pdf') !== false) {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Visszaadja, hogy a válasz tartalmaz-e számlaszámot
+     *
+     * @return boolean
+     */
+    public function hasInvoiceNumber()
+    {
+        return (SzamlaAgentUtil::isNotBlank($this->invoiceNumber));
     }
 
     /**
@@ -179,7 +200,8 @@ class InvoiceResponse {
      *
      * @return string
      */
-    public function getInvoiceNumber() {
+    public function getInvoiceNumber()
+    {
         return $this->invoiceNumber;
     }
 
@@ -188,14 +210,16 @@ class InvoiceResponse {
      *
      * @return string
      */
-    public function getDocumentNumber() {
+    public function getDocumentNumber()
+    {
         return $this->getInvoiceNumber();
     }
 
     /**
      * @param string $invoiceNumber
      */
-    protected function setInvoiceNumber($invoiceNumber) {
+    protected function setInvoiceNumber($invoiceNumber)
+    {
         $this->invoiceNumber = $invoiceNumber;
     }
 
@@ -204,14 +228,16 @@ class InvoiceResponse {
      *
      * @return string
      */
-    public function getErrorCode() {
+    public function getErrorCode()
+    {
         return $this->errorCode;
     }
 
     /**
      * @param string $errorCode
      */
-    protected function setErrorCode($errorCode) {
+    protected function setErrorCode($errorCode)
+    {
         $this->errorCode = $errorCode;
     }
 
@@ -220,21 +246,24 @@ class InvoiceResponse {
      *
      * @return string
      */
-    public function getErrorMessage() {
+    public function getErrorMessage()
+    {
         return $this->errorMessage;
     }
 
     /**
      * @param string $errorMessage
      */
-    protected function setErrorMessage($errorMessage) {
+    protected function setErrorMessage($errorMessage)
+    {
         $this->errorMessage = $errorMessage;
     }
 
     /**
      * @return bool|string
      */
-    public function getPdfFile() {
+    public function getPdfFile()
+    {
         return base64_decode($this->getPdfData());
     }
 
@@ -243,14 +272,16 @@ class InvoiceResponse {
      *
      * @return string
      */
-    public function getPdfData() {
+    public function getPdfData()
+    {
         return $this->pdfData;
     }
 
     /**
      * @param string $pdfData
      */
-    protected function setPdfData($pdfData) {
+    protected function setPdfData($pdfData)
+    {
         $this->pdfData = $pdfData;
     }
 
@@ -259,17 +290,27 @@ class InvoiceResponse {
      *
      * @return bool
      */
-    public function isSuccess() {
+    public function isSuccess()
+    {
         return ($this->success && $this->isNotError());
     }
 
     /**
-     * Visszaadja, hogy a válasz tartalmaz-e hibát
+     * Visszaadja, hogy a számla kiállítása sikertelen volt-e
      *
      * @return bool
      */
-    public function isError() {
-        return (!empty($this->getErrorMessage()) || !empty($this->getErrorCode()));
+    public function isError()
+    {
+        $result = false;
+        if (!empty($this->getErrorMessage()) || !empty($this->getErrorCode())) {
+            $result = true;
+        }
+        // Ha a számlaértesítő kézbesítése sikertelen volt, de a válasz tartalmaz számlaszámot, akkor a számla kiállítása sikeres.
+        if ($this->hasInvoiceNumber() && $this->hasInvoiceNotificationSendError()) {
+            $result = false;
+        }
+        return $result;
     }
 
     /**
@@ -277,14 +318,16 @@ class InvoiceResponse {
      *
      * @return bool
      */
-    public function isNotError() {
+    public function isNotError()
+    {
         return !$this->isError();
     }
 
     /**
      * @param bool $success
      */
-    protected function setSuccess($success) {
+    protected function setSuccess($success)
+    {
         $this->success = $success;
     }
 
@@ -293,14 +336,16 @@ class InvoiceResponse {
      *
      * @return string
      */
-    public function getUserAccountUrl() {
+    public function getUserAccountUrl()
+    {
         return urldecode($this->userAccountUrl);
     }
 
     /**
      * @param string $userAccountUrl
      */
-    protected function setUserAccountUrl($userAccountUrl) {
+    protected function setUserAccountUrl($userAccountUrl)
+    {
         $this->userAccountUrl = $userAccountUrl;
     }
 
@@ -309,14 +354,16 @@ class InvoiceResponse {
      *
      * @return int
      */
-    public function getAssetAmount() {
+    public function getAssetAmount()
+    {
         return $this->assetAmount;
     }
 
     /**
      * @param int $assetAmount
      */
-    protected function setAssetAmount($assetAmount) {
+    protected function setAssetAmount($assetAmount)
+    {
         $this->assetAmount = $assetAmount;
     }
 
@@ -325,14 +372,16 @@ class InvoiceResponse {
      *
      * @return int
      */
-    public function getNetPrice() {
+    public function getNetPrice()
+    {
         return $this->netPrice;
     }
 
     /**
      * @param int $netPrice
      */
-    protected function setNetPrice($netPrice) {
+    protected function setNetPrice($netPrice)
+    {
         $this->netPrice = $netPrice;
     }
 
@@ -341,14 +390,16 @@ class InvoiceResponse {
      *
      * @return int
      */
-    public function getGrossAmount() {
+    public function getGrossAmount()
+    {
         return $this->grossAmount;
     }
 
     /**
      * @param $grossAmount
      */
-    protected function setGrossAmount($grossAmount) {
+    protected function setGrossAmount($grossAmount)
+    {
         $this->grossAmount = $grossAmount;
     }
 
@@ -357,14 +408,29 @@ class InvoiceResponse {
      *
      * @return array
      */
-    public function getHeaders() {
+    public function getHeaders()
+    {
         return $this->headers;
     }
 
     /**
      * @param array $headers
      */
-    protected function setHeaders($headers) {
+    protected function setHeaders($headers)
+    {
         $this->headers = $headers;
+    }
+
+    /**
+     * Visszaadja, hogy a számlaértesítő kézbesítése sikertelen volt-e
+     *
+     * @return boolean
+     */
+    public function hasInvoiceNotificationSendError()
+    {
+        if ($this->getErrorCode() == self::INVOICE_NOTIFICATION_SEND_FAILED) {
+            return true;
+        }
+        return false;
     }
 }

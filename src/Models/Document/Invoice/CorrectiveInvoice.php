@@ -4,6 +4,7 @@
 namespace KomjIT\LarAgent\Models\Document\Invoice;
 
 use KomjIT\LarAgent\Models\Header\CorrectiveInvoiceHeader;
+use KomjIT\LarAgent\Models\SzamlaAgentException;
 
 /**
  * Helyesbítő számla kiállításához használható segédosztály
@@ -17,9 +18,10 @@ class CorrectiveInvoice extends Invoice
      *
      * @param int $type számla típusa (papír vagy e-számla), alapértelmezett a papír alapú számla
      *
-     * @throws \SzamlaAgent\SzamlaAgentException
+     * @throws SzamlaAgentException
      */
-    function __construct($type = self::INVOICE_TYPE_P_INVOICE) {
+    function __construct($type = self::INVOICE_TYPE_P_INVOICE)
+    {
         parent::__construct(null);
         // Alapértelmezett fejléc adatok hozzáadása
         $this->setHeader(new CorrectiveInvoiceHeader($type));

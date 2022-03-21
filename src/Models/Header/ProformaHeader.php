@@ -11,7 +11,8 @@ use KomjIT\LarAgent\Models\SzamlaAgentUtil;
  *
  * @package LarAgent\Header
  */
-class ProformaHeader extends InvoiceHeader {
+class ProformaHeader extends InvoiceHeader
+{
 
     /**
      * XML-ben kötelezően kitöltendő mezők
@@ -21,9 +22,10 @@ class ProformaHeader extends InvoiceHeader {
     protected $requiredFields = [];
 
     /**
-     * @throws \SzamlaAgent\SzamlaAgentException
+     * @throws SzamlaAgentException
      */
-    function __construct() {
+    function __construct()
+    {
         parent::__construct();
         $this->setProforma(true);
         $this->setPaid(false);
@@ -40,7 +42,8 @@ class ProformaHeader extends InvoiceHeader {
      * @return array
      * @throws SzamlaAgentException
      */
-    public function buildXmlData(SzamlaAgentRequest $request) {
+    public function buildXmlData(SzamlaAgentRequest $request)
+    {
         try {
             if (empty($request)) {
                 throw new SzamlaAgentException(SzamlaAgentException::XML_DATA_NOT_AVAILABLE);

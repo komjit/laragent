@@ -11,7 +11,7 @@ namespace KomjIT\LarAgent\Models;
 class BuyerLedger
 {
     /**
-     * Vevő azonosító
+     * vevő gazdasági esemény azonosító
      *
      * @var string
      */
@@ -55,12 +55,13 @@ class BuyerLedger
     /**
      * Vevő főkönyvi adatok példányosítása
      *
-     * @param string    $buyerId              vevő azonosító
-     * @param string    $bookingDate          könyvelés dátum
-     * @param string    $buyerLedgerNumber    vevő főkönyvi szám
-     * @param boolean   $continuedFulfillment folyamatos teljesítés
+     * @param string $buyerId vevő gazdasági esemény azonosító
+     * @param string $bookingDate könyvelés dátum
+     * @param string $buyerLedgerNumber vevő főkönyvi szám
+     * @param boolean $continuedFulfillment folyamatos teljesítés
      */
-    public function __construct($buyerId = '', $bookingDate = '', $buyerLedgerNumber = '', $continuedFulfillment = false) {
+    public function __construct($buyerId = '', $bookingDate = '', $buyerLedgerNumber = '', $continuedFulfillment = false)
+    {
         $this->setBuyerId($buyerId);
         $this->setBookingDate($bookingDate);
         $this->setBuyerLedgerNumber($buyerLedgerNumber);
@@ -76,7 +77,8 @@ class BuyerLedger
      * @return string
      * @throws SzamlaAgentException
      */
-    protected function checkField($field, $value) {
+    protected function checkField($field, $value)
+    {
         if (property_exists($this, $field)) {
             switch ($field) {
                 case 'bookingDate':
@@ -101,7 +103,8 @@ class BuyerLedger
      *
      * @throws SzamlaAgentException
      */
-    protected function checkFields() {
+    protected function checkFields()
+    {
         $fields = get_object_vars($this);
         foreach ($fields as $field => $value) {
             $this->checkField($field, $value);
@@ -112,35 +115,38 @@ class BuyerLedger
      * @return array
      * @throws SzamlaAgentException
      */
-    public function getXmlData() {
+    public function getXmlData()
+    {
         $data = [];
         $this->checkFields();
 
-        if (SzamlaAgentUtil::isNotBlank($this->getBookingDate()))           $data['konyvelesDatum'] = $this->getBookingDate();
-        if (SzamlaAgentUtil::isNotBlank($this->getBuyerId()))               $data['vevoAzonosito'] = $this->getBuyerId();
-        if (SzamlaAgentUtil::isNotBlank($this->getBuyerLedgerNumber()))     $data['vevoFokonyviSzam'] = $this->getBuyerLedgerNumber();
-        if ($this->isContinuedFulfillment())                                $data['folyamatosTelj'] = $this->isContinuedFulfillment();
+        if (SzamlaAgentUtil::isNotBlank($this->getBookingDate())) $data['konyvelesDatum'] = $this->getBookingDate();
+        if (SzamlaAgentUtil::isNotBlank($this->getBuyerId())) $data['vevoAzonosito'] = $this->getBuyerId();
+        if (SzamlaAgentUtil::isNotBlank($this->getBuyerLedgerNumber())) $data['vevoFokonyviSzam'] = $this->getBuyerLedgerNumber();
+        if ($this->isContinuedFulfillment()) $data['folyamatosTelj'] = $this->isContinuedFulfillment();
         if (SzamlaAgentUtil::isNotBlank($this->getSettlementPeriodStart())) $data['elszDatumTol'] = $this->getSettlementPeriodStart();
-        if (SzamlaAgentUtil::isNotBlank($this->getSettlementPeriodEnd()))   $data['elszDatumIg'] = $this->getSettlementPeriodEnd();
+        if (SzamlaAgentUtil::isNotBlank($this->getSettlementPeriodEnd())) $data['elszDatumIg'] = $this->getSettlementPeriodEnd();
 
         return $data;
     }
 
     /**
-     * Visszaadja az egyedi azonosítót
+     * Visszaadja a vevő gazdasági esemény azonosítót
      *
      * @return string
      */
-    public function getBuyerId() {
+    public function getBuyerId()
+    {
         return $this->buyerId;
     }
 
     /**
-     * Beállítja az egyedi azonosítót
+     * Beállítja a vevő gazdasági esemény azonosítót
      *
      * @param string $buyerId
      */
-    public function setBuyerId($buyerId) {
+    public function setBuyerId($buyerId)
+    {
         $this->buyerId = $buyerId;
     }
 
@@ -149,7 +155,8 @@ class BuyerLedger
      *
      * @return string
      */
-    public function getBookingDate() {
+    public function getBookingDate()
+    {
         return $this->bookingDate;
     }
 
@@ -158,7 +165,8 @@ class BuyerLedger
      *
      * @param string $bookingDate
      */
-    public function setBookingDate($bookingDate) {
+    public function setBookingDate($bookingDate)
+    {
         $this->bookingDate = $bookingDate;
     }
 
@@ -167,7 +175,8 @@ class BuyerLedger
      *
      * @return string
      */
-    public function getBuyerLedgerNumber() {
+    public function getBuyerLedgerNumber()
+    {
         return $this->buyerLedgerNumber;
     }
 
@@ -176,7 +185,8 @@ class BuyerLedger
      *
      * @param string $buyerLedgerNumber
      */
-    public function setBuyerLedgerNumber($buyerLedgerNumber) {
+    public function setBuyerLedgerNumber($buyerLedgerNumber)
+    {
         $this->buyerLedgerNumber = $buyerLedgerNumber;
     }
 
@@ -185,7 +195,8 @@ class BuyerLedger
      *
      * @return bool
      */
-    public function isContinuedFulfillment() {
+    public function isContinuedFulfillment()
+    {
         return $this->continuedFulfillment;
     }
 
@@ -194,7 +205,8 @@ class BuyerLedger
      *
      * @param bool $continuedFulfillment
      */
-    public function setContinuedFulfillment($continuedFulfillment) {
+    public function setContinuedFulfillment($continuedFulfillment)
+    {
         $this->continuedFulfillment = $continuedFulfillment;
     }
 
@@ -203,7 +215,8 @@ class BuyerLedger
      *
      * @return string
      */
-    public function getSettlementPeriodStart() {
+    public function getSettlementPeriodStart()
+    {
         return $this->settlementPeriodStart;
     }
 
@@ -212,7 +225,8 @@ class BuyerLedger
      *
      * @param string $settlementPeriodStart
      */
-    public function setSettlementPeriodStart($settlementPeriodStart) {
+    public function setSettlementPeriodStart($settlementPeriodStart)
+    {
         $this->settlementPeriodStart = $settlementPeriodStart;
     }
 
@@ -221,7 +235,8 @@ class BuyerLedger
      *
      * @return string
      */
-    public function getSettlementPeriodEnd() {
+    public function getSettlementPeriodEnd()
+    {
         return $this->settlementPeriodEnd;
     }
 
@@ -230,7 +245,8 @@ class BuyerLedger
      *
      * @param string $settlementPeriodEnd
      */
-    public function setSettlementPeriodEnd($settlementPeriodEnd) {
+    public function setSettlementPeriodEnd($settlementPeriodEnd)
+    {
         $this->settlementPeriodEnd = $settlementPeriodEnd;
     }
 }

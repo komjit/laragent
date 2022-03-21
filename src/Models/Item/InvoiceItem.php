@@ -11,7 +11,8 @@ use KomjIT\LarAgent\Models\SzamlaAgentUtil;
  *
  * @package LarAgent\Item
  */
-class InvoiceItem extends Item {
+class InvoiceItem extends Item
+{
 
     /**
      * Tételhez tartozó főkönyvi adatok
@@ -23,13 +24,14 @@ class InvoiceItem extends Item {
     /**
      * Számlatétel példányosítás
      *
-     * @param string $name          tétel név
-     * @param double $netUnitPrice  nettó egységár
-     * @param double $quantity      mennyiség
-     * @param string $quantityUnit  mennyiségi egység
-     * @param string $vat           áfatartalom
+     * @param string $name tétel név
+     * @param double $netUnitPrice nettó egységár
+     * @param double $quantity mennyiség
+     * @param string $quantityUnit mennyiségi egység
+     * @param string $vat áfatartalom
      */
-    public function __construct($name, $netUnitPrice, $quantity = self::DEFAULT_QUANTITY, $quantityUnit = self::DEFAULT_QUANTITY_UNIT, $vat = self::DEFAULT_VAT) {
+    public function __construct($name, $netUnitPrice, $quantity = self::DEFAULT_QUANTITY, $quantityUnit = self::DEFAULT_QUANTITY_UNIT, $vat = self::DEFAULT_VAT)
+    {
         parent::__construct($name, $netUnitPrice, $quantity, $quantityUnit, $vat);
     }
 
@@ -37,35 +39,36 @@ class InvoiceItem extends Item {
      * @return array
      * @throws SzamlaAgentException
      */
-    public function buildXmlData() {
+    public function buildXmlData()
+    {
         $data = [];
         $this->checkFields();
 
-        $data['megnevezes']       = $this->getName();
+        $data['megnevezes'] = $this->getName();
 
-        if (SzamlaAgentUtil::isNotBlank($this->getId())){
-            $data['azonosito']    = $this->getId();
+        if (SzamlaAgentUtil::isNotBlank($this->getId())) {
+            $data['azonosito'] = $this->getId();
         }
 
-        $data['mennyiseg']        = SzamlaAgentUtil::doubleFormat($this->getQuantity());
+        $data['mennyiseg'] = SzamlaAgentUtil::doubleFormat($this->getQuantity());
         $data['mennyisegiEgyseg'] = $this->getQuantityUnit();
-        $data['nettoEgysegar']    = SzamlaAgentUtil::doubleFormat($this->getNetUnitPrice());
-        $data['afakulcs']         = $this->getVat();
+        $data['nettoEgysegar'] = SzamlaAgentUtil::doubleFormat($this->getNetUnitPrice());
+        $data['afakulcs'] = $this->getVat();
 
         if (SzamlaAgentUtil::isNotNull($this->getPriceGapVatBase())) {
             $data['arresAfaAlap'] = SzamlaAgentUtil::doubleFormat($this->getPriceGapVatBase());
         }
 
-        $data['nettoErtek']       = SzamlaAgentUtil::doubleFormat($this->getNetPrice());
-        $data['afaErtek']         = SzamlaAgentUtil::doubleFormat($this->getVatAmount());
-        $data['bruttoErtek']      = SzamlaAgentUtil::doubleFormat($this->getGrossAmount());
+        $data['nettoErtek'] = SzamlaAgentUtil::doubleFormat($this->getNetPrice());
+        $data['afaErtek'] = SzamlaAgentUtil::doubleFormat($this->getVatAmount());
+        $data['bruttoErtek'] = SzamlaAgentUtil::doubleFormat($this->getGrossAmount());
 
         if (SzamlaAgentUtil::isNotBlank($this->getComment())) {
-            $data['megjegyzes']   = $this->getComment();
+            $data['megjegyzes'] = $this->getComment();
         }
 
         if (SzamlaAgentUtil::isNotNull($this->getLedgerData())) {
-            $data['tetelFokonyv']     = $this->getLedgerData()->buildXmlData();
+            $data['tetelFokonyv'] = $this->getLedgerData()->buildXmlData();
         }
         return $data;
     }
@@ -74,42 +77,48 @@ class InvoiceItem extends Item {
     /**
      * @return float
      */
-    public function getPriceGapVatBase() {
+    public function getPriceGapVatBase()
+    {
         return $this->priceGapVatBase;
     }
 
     /**
      * @param float $priceGapVatBase
      */
-    public function setPriceGapVatBase($priceGapVatBase) {
+    public function setPriceGapVatBase($priceGapVatBase)
+    {
         $this->priceGapVatBase = (float)$priceGapVatBase;
     }
 
     /**
      * @return InvoiceItemLedger
      */
-    public function getLedgerData() {
+    public function getLedgerData()
+    {
         return $this->ledgerData;
     }
 
     /**
      * @param InvoiceItemLedger $ledgerData
      */
-    public function setLedgerData(InvoiceItemLedger $ledgerData) {
+    public function setLedgerData(InvoiceItemLedger $ledgerData)
+    {
         $this->ledgerData = $ledgerData;
     }
 
     /**
      * @return string
      */
-    public function getComment() {
+    public function getComment()
+    {
         return $this->comment;
     }
 
     /**
      * @param string $comment
      */
-    public function setComment($comment) {
+    public function setComment($comment)
+    {
         $this->comment = $comment;
     }
 }

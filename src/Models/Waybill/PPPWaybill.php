@@ -12,7 +12,8 @@ use KomjIT\LarAgent\Models\SzamlaAgentUtil;
  *
  * @package SzamlaAgent\Waybill
  */
-class PPPWaybill extends Waybill {
+class PPPWaybill extends Waybill
+{
 
     /**
      * Vonalkód előtag
@@ -33,11 +34,12 @@ class PPPWaybill extends Waybill {
     /**
      * PPP (Pick Pack Pont) fuvarlevél létrehozása
      *
-     * @param string  $destination  Úti cél
-     * @param string  $barcode      Vonalkód
-     * @param string  $comment      fuvarlevél megjegyzés
+     * @param string $destination Úti cél
+     * @param string $barcode Vonalkód
+     * @param string $comment fuvarlevél megjegyzés
      */
-    function __construct($destination = '', $barcode = '', $comment = '') {
+    function __construct($destination = '', $barcode = '', $comment = '')
+    {
         parent::__construct($destination, self::WAYBILL_TYPE_PPP, $barcode, $comment);
     }
 
@@ -50,7 +52,8 @@ class PPPWaybill extends Waybill {
      * @return string
      * @throws SzamlaAgentException
      */
-    protected function checkField($field, $value) {
+    protected function checkField($field, $value)
+    {
         if (property_exists($this, $field)) {
             switch ($field) {
                 case 'barcodePrefix':
@@ -69,12 +72,13 @@ class PPPWaybill extends Waybill {
      * @return array
      * @throws SzamlaAgentException
      */
-    public function buildXmlData(SzamlaAgentRequest $request) {
+    public function buildXmlData(SzamlaAgentRequest $request)
+    {
         $this->checkFields(get_class());
         $data = parent::buildXmlData($request);
 
         $data['ppp'] = [];
-        if (SzamlaAgentUtil::isNotBlank($this->getBarcodePrefix()))  $data['ppp']['vonalkodPrefix']  = $this->getBarcodePrefix();
+        if (SzamlaAgentUtil::isNotBlank($this->getBarcodePrefix())) $data['ppp']['vonalkodPrefix'] = $this->getBarcodePrefix();
         if (SzamlaAgentUtil::isNotBlank($this->getBarcodePostfix())) $data['ppp']['vonalkodPostfix'] = $this->getBarcodePostfix();
 
         return $data;
@@ -83,28 +87,32 @@ class PPPWaybill extends Waybill {
     /**
      * @return string
      */
-    public function getBarcodePrefix() {
+    public function getBarcodePrefix()
+    {
         return $this->barcodePrefix;
     }
 
     /**
      * @param string $barcodePrefix
      */
-    public function setBarcodePrefix($barcodePrefix) {
+    public function setBarcodePrefix($barcodePrefix)
+    {
         $this->barcodePrefix = $barcodePrefix;
     }
 
     /**
      * @return string
      */
-    public function getBarcodePostfix() {
+    public function getBarcodePostfix()
+    {
         return $this->barcodePostfix;
     }
 
     /**
      * @param string $barcodePostfix
      */
-    public function setBarcodePostfix($barcodePostfix) {
+    public function setBarcodePostfix($barcodePostfix)
+    {
         $this->barcodePostfix = $barcodePostfix;
     }
 }

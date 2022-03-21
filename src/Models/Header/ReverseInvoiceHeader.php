@@ -13,7 +13,8 @@ use KomjIT\LarAgent\Models\SzamlaAgentUtil;
  *
  * @package LarAgent\Header
  */
-class ReverseInvoiceHeader extends InvoiceHeader {
+class ReverseInvoiceHeader extends InvoiceHeader
+{
 
     /**
      * XML-ben kötelezően kitöltendő mezők
@@ -27,7 +28,8 @@ class ReverseInvoiceHeader extends InvoiceHeader {
      *
      * @throws SzamlaAgentException
      */
-    function __construct($type = Invoice::INVOICE_TYPE_P_INVOICE) {
+    function __construct($type = Invoice::INVOICE_TYPE_P_INVOICE)
+    {
         parent::__construct($type);
         $this->setReserveInvoice(true);
     }
@@ -41,7 +43,8 @@ class ReverseInvoiceHeader extends InvoiceHeader {
      * @return string
      * @throws SzamlaAgentException
      */
-    public function checkField($field, $value) {
+    public function checkField($field, $value)
+    {
         if (property_exists(get_parent_class($this), $field) || property_exists($this, $field)) {
             $required = in_array($field, $this->getRequiredFields());
             switch ($field) {
@@ -50,6 +53,7 @@ class ReverseInvoiceHeader extends InvoiceHeader {
                     SzamlaAgentUtil::checkDateField($field, $value, $required, __CLASS__);
                     break;
                 case 'invoiceNumber':
+                case 'comment':
                     SzamlaAgentUtil::checkStrField($field, $value, $required, __CLASS__);
                     break;
             }
@@ -68,7 +72,8 @@ class ReverseInvoiceHeader extends InvoiceHeader {
      * @return array
      * @throws SzamlaAgentException
      */
-    public function buildXmlData(SzamlaAgentRequest $request) {
+    public function buildXmlData(SzamlaAgentRequest $request)
+    {
 
         try {
             if (empty($request)) {
@@ -76,9 +81,14 @@ class ReverseInvoiceHeader extends InvoiceHeader {
             }
 
             $data["szamlaszam"] = $this->getInvoiceNumber();
-            if (!empty($this->getIssueDate()))   $data['keltDatum'] = $this->getIssueDate();
+
+            if (!empty($this->getIssueDate())) $data['keltDatum'] = $this->getIssueDate();
             if (!empty($this->getFulfillment())) $data['teljesitesDatum'] = $this->getFulfillment();
+            if (SzamlaAgentUtil::isNotBlank($this->getComment())) $data['megjegyzes'] = $this->getComment();
+
             $data['tipus'] = Document::DOCUMENT_TYPE_REVERSE_INVOICE_CODE;
+
+            if (!empty($this->getInvoiceTemplate())) $data['szamlaSablon'] = $this->getInvoiceTemplate();
 
             $this->checkFields();
 

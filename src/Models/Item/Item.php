@@ -10,7 +10,8 @@ use KomjIT\LarAgent\Models\SzamlaAgentUtil;
  *
  * @package LarAgent\Item
  */
-class Item {
+class Item
+{
 
     /**
      * Áfakulcs: tárgyi adómentes
@@ -51,6 +52,71 @@ class Item {
      * Áfakulcs: áfakörön kívüli
      */
     const VAT_AKK = 'ÁKK';
+
+    /**
+     * Áfakulcs: áfakörön kívüli
+     */
+    const VAT_TAHK = 'TAHK';
+
+    /**
+     * Áfakulcs: áfakörön kívüli
+     */
+    const VAT_TEHK = 'TEHK';
+
+    /**
+     * Áfakulcs: EU-n belüli termék értékesítés
+     */
+    const VAT_EUT = 'EUT';
+
+    /**
+     * Áfakulcs: EU-n kívüli termék értékesítés
+     */
+    const VAT_EUKT = 'EUKT';
+
+    /**
+     * Áfakulcs: EU-n belüli
+     */
+    const VAT_KBAET = 'KBAET';
+
+    /**
+     * Áfakulcs: EU-n belüli
+     */
+    const VAT_KBAUK = 'KBAUK';
+
+    /**
+     * Áfakulcs: EU-n kívüli
+     */
+    const VAT_EAM = 'EAM';
+
+    /**
+     * Áfakulcs: Mentes az adó alól
+     */
+    const VAT_NAM = 'KBAUK';
+
+    /**
+     * Áfakulcs: áfa tárgyi hatályán kívül
+     */
+    const VAT_ATK = 'ATK';
+
+    /**
+     * Áfakulcs: EU-n belüli
+     */
+    const VAT_EUFAD37 = 'EUFAD37';
+
+    /**
+     * Áfakulcs: EU-n belüli
+     */
+    const VAT_EUFADE = 'EUFADE';
+
+    /**
+     * Áfakulcs: EU-n belüli
+     */
+    const VAT_EUE = 'EUE';
+
+    /**
+     * Áfakulcs: EU-n kívüli
+     */
+    const VAT_HO = 'HO';
 
     /**
      * Alapértelmezett ÁFA érték
@@ -166,13 +232,14 @@ class Item {
     /**
      * Tétel példányosítás
      *
-     * @param string $name          tétel név
-     * @param double $netUnitPrice  nettó egységár
-     * @param double $quantity      mennyiség
-     * @param string $quantityUnit  mennyiségi egység
-     * @param string $vat           áfatartalom
+     * @param string $name tétel név
+     * @param double $netUnitPrice nettó egységár
+     * @param double $quantity mennyiség
+     * @param string $quantityUnit mennyiségi egység
+     * @param string $vat áfatartalom
      */
-    protected function __construct($name, $netUnitPrice, $quantity = self::DEFAULT_QUANTITY, $quantityUnit = self::DEFAULT_QUANTITY_UNIT, $vat = self::DEFAULT_VAT) {
+    protected function __construct($name, $netUnitPrice, $quantity = self::DEFAULT_QUANTITY, $quantityUnit = self::DEFAULT_QUANTITY_UNIT, $vat = self::DEFAULT_VAT)
+    {
         $this->setName($name);
         $this->setNetUnitPrice($netUnitPrice);
         $this->setQuantity($quantity);
@@ -183,7 +250,8 @@ class Item {
     /**
      * @return array
      */
-    protected function getRequiredFields() {
+    protected function getRequiredFields()
+    {
         return $this->requiredFields;
     }
 
@@ -196,7 +264,8 @@ class Item {
      * @return string
      * @throws SzamlaAgentException
      */
-    protected function checkField($field, $value) {
+    protected function checkField($field, $value)
+    {
         if (property_exists($this, $field)) {
             $required = in_array($field, $this->getRequiredFields());
             switch ($field) {
@@ -225,7 +294,8 @@ class Item {
      *
      * @throws SzamlaAgentException
      */
-    protected function checkFields() {
+    protected function checkFields()
+    {
         $fields = get_object_vars($this);
         foreach ($fields as $field => $value) {
             $this::checkField($field, $value);
@@ -235,126 +305,144 @@ class Item {
     /**
      * @return string
      */
-    public function getId() {
+    public function getId()
+    {
         return $this->id;
     }
 
     /**
      * @param string $id
      */
-    public function setId($id) {
+    public function setId($id)
+    {
         $this->id = $id;
     }
 
     /**
      * @return string
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
     /**
      * @param string $name
      */
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $name;
     }
 
     /**
      * @return float
      */
-    public function getQuantity() {
+    public function getQuantity()
+    {
         return $this->quantity;
     }
 
     /**
      * @param float $quantity
      */
-    public function setQuantity($quantity) {
+    public function setQuantity($quantity)
+    {
         $this->quantity = (float)$quantity;
     }
 
     /**
      * @return string
      */
-    public function getQuantityUnit() {
+    public function getQuantityUnit()
+    {
         return $this->quantityUnit;
     }
 
     /**
      * @param string $quantityUnit
      */
-    public function setQuantityUnit($quantityUnit) {
+    public function setQuantityUnit($quantityUnit)
+    {
         $this->quantityUnit = $quantityUnit;
     }
 
     /**
      * @return float
      */
-    public function getNetUnitPrice() {
+    public function getNetUnitPrice()
+    {
         return $this->netUnitPrice;
     }
 
     /**
      * @param float $netUnitPrice
      */
-    public function setNetUnitPrice($netUnitPrice) {
+    public function setNetUnitPrice($netUnitPrice)
+    {
         $this->netUnitPrice = (float)$netUnitPrice;
     }
 
     /**
      * @return string
      */
-    public function getVat() {
+    public function getVat()
+    {
         return $this->vat;
     }
 
     /**
      * @param string $vat
      */
-    public function setVat($vat) {
+    public function setVat($vat)
+    {
         $this->vat = $vat;
     }
 
     /**
      * @return float
      */
-    public function getNetPrice() {
+    public function getNetPrice()
+    {
         return $this->netPrice;
     }
 
     /**
      * @param float $netPrice
      */
-    public function setNetPrice($netPrice) {
+    public function setNetPrice($netPrice)
+    {
         $this->netPrice = (float)$netPrice;
     }
 
     /**
      * @return float
      */
-    public function getVatAmount() {
+    public function getVatAmount()
+    {
         return $this->vatAmount;
     }
 
     /**
      * @param float $vatAmount
      */
-    public function setVatAmount($vatAmount) {
+    public function setVatAmount($vatAmount)
+    {
         $this->vatAmount = (float)$vatAmount;
     }
 
     /**
      * @return float
      */
-    public function getGrossAmount() {
+    public function getGrossAmount()
+    {
         return $this->grossAmount;
     }
 
     /**
      * @param float $grossAmount
      */
-    public function setGrossAmount($grossAmount) {
+    public function setGrossAmount($grossAmount)
+    {
         $this->grossAmount = (float)$grossAmount;
     }
 }

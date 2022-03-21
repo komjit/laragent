@@ -11,7 +11,8 @@ use KomjIT\LarAgent\Models\SzamlaAgentUtil;
  *
  * @package SzamlaAgent\Waybill
  */
-class TransoflexWaybill extends Waybill {
+class TransoflexWaybill extends Waybill
+{
 
     /**
      * Fuvarlevél azonosító
@@ -59,11 +60,12 @@ class TransoflexWaybill extends Waybill {
     /**
      * Transoflex fuvarlevél létrehozása
      *
-     * @param string  $destination  Úti cél
-     * @param string  $barcode      Vonalkód
-     * @param string  $comment      fuvarlevél megjegyzés
+     * @param string $destination Úti cél
+     * @param string $barcode Vonalkód
+     * @param string $comment fuvarlevél megjegyzés
      */
-    function __construct($destination = '', $barcode = '', $comment = '') {
+    function __construct($destination = '', $barcode = '', $comment = '')
+    {
         parent::__construct($destination, self::WAYBILL_TYPE_TRANSOFLEX, $barcode, $comment);
     }
 
@@ -76,7 +78,8 @@ class TransoflexWaybill extends Waybill {
      * @return string
      * @throws SzamlaAgentException
      */
-    protected function checkField($field, $value) {
+    protected function checkField($field, $value)
+    {
         if (property_exists($this, $field)) {
             switch ($field) {
                 case 'packetNumber':
@@ -100,17 +103,18 @@ class TransoflexWaybill extends Waybill {
      * @return array
      * @throws SzamlaAgentException
      */
-    public function buildXmlData(SzamlaAgentRequest $request) {
+    public function buildXmlData(SzamlaAgentRequest $request)
+    {
         $this->checkFields(get_class());
         $data = parent::buildXmlData($request);
 
         $data['tof'] = [];
-        if (SzamlaAgentUtil::isNotBlank($this->getId()))           $data['tof']['azonosito'] = $this->getId();
-        if (SzamlaAgentUtil::isNotBlank($this->getShippingId()))   $data['tof']['shippingID'] = $this->getShippingId();
-        if (SzamlaAgentUtil::isNotNull($this->getPacketNumber()))  $data['tof']['csomagszam'] = $this->getPacketNumber();
-        if (SzamlaAgentUtil::isNotBlank($this->getCountryCode()))  $data['tof']['countryCode'] = $this->getCountryCode();
-        if (SzamlaAgentUtil::isNotBlank($this->getZip()))          $data['tof']['zip'] = $this->getZip();
-        if (SzamlaAgentUtil::isNotBlank($this->getService()))      $data['tof']['service'] = $this->getService();
+        if (SzamlaAgentUtil::isNotBlank($this->getId())) $data['tof']['azonosito'] = $this->getId();
+        if (SzamlaAgentUtil::isNotBlank($this->getShippingId())) $data['tof']['shippingID'] = $this->getShippingId();
+        if (SzamlaAgentUtil::isNotNull($this->getPacketNumber())) $data['tof']['csomagszam'] = $this->getPacketNumber();
+        if (SzamlaAgentUtil::isNotBlank($this->getCountryCode())) $data['tof']['countryCode'] = $this->getCountryCode();
+        if (SzamlaAgentUtil::isNotBlank($this->getZip())) $data['tof']['zip'] = $this->getZip();
+        if (SzamlaAgentUtil::isNotBlank($this->getService())) $data['tof']['service'] = $this->getService();
 
         return $data;
     }
@@ -118,84 +122,96 @@ class TransoflexWaybill extends Waybill {
     /**
      * @return string
      */
-    public function getId() {
+    public function getId()
+    {
         return $this->id;
     }
 
     /**
      * @param string $id
      */
-    public function setId($id) {
+    public function setId($id)
+    {
         $this->id = $id;
     }
 
     /**
      * @return string
      */
-    public function getShippingId() {
+    public function getShippingId()
+    {
         return $this->shippingId;
     }
 
     /**
      * @param string $shippingId
      */
-    public function setShippingId($shippingId) {
+    public function setShippingId($shippingId)
+    {
         $this->shippingId = $shippingId;
     }
 
     /**
      * @return int
      */
-    public function getPacketNumber() {
+    public function getPacketNumber()
+    {
         return $this->packetNumber;
     }
 
     /**
      * @param int $packetNumber
      */
-    public function setPacketNumber($packetNumber) {
+    public function setPacketNumber($packetNumber)
+    {
         $this->packetNumber = $packetNumber;
     }
 
     /**
      * @return string
      */
-    public function getCountryCode() {
+    public function getCountryCode()
+    {
         return $this->countryCode;
     }
 
     /**
      * @param string $countryCode
      */
-    public function setCountryCode($countryCode) {
+    public function setCountryCode($countryCode)
+    {
         $this->countryCode = $countryCode;
     }
 
     /**
      * @return string
      */
-    public function getZip() {
+    public function getZip()
+    {
         return $this->zip;
     }
 
     /**
      * @param string $zip
      */
-    public function setZip($zip) {
+    public function setZip($zip)
+    {
         $this->zip = $zip;
     }
 
     /**
      * @return string
      */
-    public function getService() {
+    public function getService()
+    {
         return $this->service;
     }
 
     /**
      * @param string $service
      */
-    public function setService($service) {
+    public function setService($service)
+    {
         $this->service = $service;
     }
 }

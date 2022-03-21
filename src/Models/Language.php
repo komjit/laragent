@@ -2,6 +2,9 @@
 
 namespace KomjIT\LarAgent\Models;
 
+use ReflectionClass;
+use ReflectionException;
+
 /**
  * A Számla Agent-ben használható nyelvek
  *
@@ -85,11 +88,11 @@ class Language
 
     /**
      * @return array
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public static function getAll()
     {
-        $reflector = new \ReflectionClass(new Language());
+        $reflector = new ReflectionClass(new Language());
         $constants = $reflector->getConstants();
 
         $values = [];

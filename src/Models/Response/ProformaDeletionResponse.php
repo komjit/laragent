@@ -8,7 +8,8 @@ namespace KomjIT\LarAgent\Models\Response;
  *
  * @package SzamlaAgent\Response
  */
-class ProformaDeletionResponse {
+class ProformaDeletionResponse
+{
 
     /**
      * Díjbekérő száma
@@ -52,27 +53,28 @@ class ProformaDeletionResponse {
      *
      * @return ProformaDeletionResponse
      */
-    public static function parseData(array $data) {
-        $payer   = new ProformaDeletionResponse();
+    public static function parseData(array $data)
+    {
+        $response = new ProformaDeletionResponse();
         $headers = $data['headers'];
 
         if (!empty($headers)) {
-            $payer->setHeaders($headers);
+            $response->setHeaders($headers);
 
             if (array_key_exists('szlahu_error', $headers)) {
                 $error = urldecode($headers['szlahu_error']);
-                $payer->setErrorMessage($error);
+                $response->setErrorMessage($error);
             }
 
             if (array_key_exists('szlahu_error_code', $headers)) {
-                $payer->setErrorCode($headers['szlahu_error_code']);
+                $response->setErrorCode($headers['szlahu_error_code']);
             }
 
-            if ($payer->isNotError()) {
-                $payer->setSuccess(true);
+            if ($response->isNotError()) {
+                $response->setSuccess(true);
             }
         }
-        return $payer;
+        return $response;
     }
 
     /**
@@ -80,7 +82,8 @@ class ProformaDeletionResponse {
      *
      * @return string
      */
-    public function getDocumentNumber() {
+    public function getDocumentNumber()
+    {
         return $this->getProformaNumber();
     }
 
@@ -89,7 +92,8 @@ class ProformaDeletionResponse {
      *
      * @return string
      */
-    public function getProformaNumber() {
+    public function getProformaNumber()
+    {
         return $this->proformaNumber;
     }
 
@@ -98,14 +102,16 @@ class ProformaDeletionResponse {
      *
      * @return string
      */
-    public function getErrorCode() {
+    public function getErrorCode()
+    {
         return $this->errorCode;
     }
 
     /**
      * @param string $errorCode
      */
-    protected function setErrorCode($errorCode) {
+    protected function setErrorCode($errorCode)
+    {
         $this->errorCode = $errorCode;
     }
 
@@ -114,14 +120,16 @@ class ProformaDeletionResponse {
      *
      * @return string
      */
-    public function getErrorMessage() {
+    public function getErrorMessage()
+    {
         return $this->errorMessage;
     }
 
     /**
      * @param string $errorMessage
      */
-    protected function setErrorMessage($errorMessage) {
+    protected function setErrorMessage($errorMessage)
+    {
         $this->errorMessage = $errorMessage;
     }
 
@@ -130,7 +138,8 @@ class ProformaDeletionResponse {
      *
      * @return bool
      */
-    public function isSuccess() {
+    public function isSuccess()
+    {
         return ($this->success && $this->isNotError());
     }
 
@@ -139,7 +148,8 @@ class ProformaDeletionResponse {
      *
      * @return bool
      */
-    public function isError() {
+    public function isError()
+    {
         return (!empty($this->getErrorMessage()) || !empty($this->getErrorCode()));
     }
 
@@ -148,14 +158,16 @@ class ProformaDeletionResponse {
      *
      * @return bool
      */
-    public function isNotError() {
+    public function isNotError()
+    {
         return !$this->isError();
     }
 
     /**
      * @param bool $success
      */
-    protected function setSuccess($success) {
+    protected function setSuccess($success)
+    {
         $this->success = $success;
     }
 
@@ -164,14 +176,16 @@ class ProformaDeletionResponse {
      *
      * @return array
      */
-    public function getHeaders() {
+    public function getHeaders()
+    {
         return $this->headers;
     }
 
     /**
      * @param array $headers
      */
-    protected function setHeaders($headers) {
+    protected function setHeaders($headers)
+    {
         $this->headers = $headers;
     }
 }

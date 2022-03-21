@@ -3,19 +3,27 @@
 
 namespace KomjIT\LarAgent\Models\Response;
 
+use Exception;
 use KomjIT\LarAgent\Models\Document\Document;
+use KomjIT\LarAgent\Models\Document\Invoice\Invoice;
+use KomjIT\LarAgent\Models\Header\InvoiceHeader;
 use KomjIT\LarAgent\Models\Log;
+use KomjIT\LarAgent\Models\SimpleXMLExtended;
 use KomjIT\LarAgent\Models\SzamlaAgent;
 use KomjIT\LarAgent\Models\SzamlaAgentException;
 use KomjIT\LarAgent\Models\SzamlaAgentRequest;
 use KomjIT\LarAgent\Models\SzamlaAgentUtil;
+use ReflectionClass;
+use ReflectionException;
+use SimpleXMLElement;
 
 /**
  * A Számla Agent választ kezelő osztály
  *
  * @package SzamlaAgent\Response
  */
-class SzamlaAgentResponse {
+class SzamlaAgentResponse
+{
 
     /**
      * Számla Agent kérésre adott válaszban szöveges válasz érkezik
@@ -75,7 +83,7 @@ class SzamlaAgentResponse {
     /**
      * Válaszban kapott XML
      *
-     * @var \SimpleXMLElement
+     * @var SimpleXMLElement
      */
     private $xmlData;
 
@@ -112,9 +120,10 @@ class SzamlaAgentResponse {
      * Számla Agent válasz létrehozása
      *
      * @param SzamlaAgent $agent
-     * @param array       $response
+     * @param array $response
      */
-    public function __construct(SzamlaAgent $agent, array $response) {
+    public function __construct(SzamlaAgent $agent, array $response)
+    {
         $this->setAgent($agent);
         $this->setResponse($response);
         $this->setXmlSchemaType($response['headers']['Schema-Type']);
@@ -125,11 +134,12 @@ class SzamlaAgentResponse {
      *
      * @return SzamlaAgentResponse
      * @throws SzamlaAgentException
-     * @throws \Exception
+     * @throws Exception
      */
-    public function handleResponse() {
+    public function handleResponse()
+    {
         $response = $this->getResponse();
-        $agent    = $this->getAgent();
+        $agent = $this->getAgent();
 
         if (empty($response) || $response === null) {
             throw new SzamlaAgentException(SzamlaAgentException::AGENT_RESPONSE_IS_EMPTY);
@@ -161,11 +171,17 @@ class SzamlaAgentResponse {
         }
 
         $this->buildResponseObjData();
-        $this->createXmlFile($this->getXmlData());
+        if ($agent->isXmlFileSave() && $agent->isResponseXmlFileSave()) {
+            $this->createXmlFile($this->getXmlData());
+        }
         $this->checkFields();
 
+        if ($this->hasInvoiceNotificationSendError()) {
+            $agent->writeLog(SzamlaAgentException::INVOICE_NOTIFICATION_SEND_FAILED, Log::LOG_LEVEL_DEBUG);
+        }
+
         if ($this->isFailed()) {
-            throw new SzamlaAgentException( SzamlaAgentException::AGENT_ERROR . ": [{$this->getErrorCode()}], {$this->getErrorMsg()}");
+            throw new SzamlaAgentException(SzamlaAgentException::AGENT_ERROR . ": [{$this->getErrorCode()}], {$this->getErrorMsg()}");
         } else if ($this->isSuccess()) {
             $agent->writeLog("Agent hívás sikeresen befejeződött.", Log::LOG_LEVEL_DEBUG);
 
@@ -181,20 +197,22 @@ class SzamlaAgentResponse {
                         } else if (!empty($pdfData)) {
                             $this->setPdfFile($pdfData);
 
-                            $file = file_put_contents($this->getPdfFileName(), $pdfData);
+                            if ($agent->isPdfFileSave()) {
+                                $file = file_put_contents($this->getPdfFileName(), $pdfData);
 
-                            if ($file !== false) {
-                                $agent->writeLog(SzamlaAgentException::PDF_FILE_SAVE_SUCCESS . ': ' . $this->getPdfFileName(), Log::LOG_LEVEL_DEBUG);
-                            } else {
-                                $errorMsg = SzamlaAgentException::PDF_FILE_SAVE_FAILED . ': ' . SzamlaAgentException::FILE_CREATION_FAILED;
-                                $agent->writeLog($errorMsg, Log::LOG_LEVEL_DEBUG);
-                                throw new SzamlaAgentException($errorMsg);
+                                if ($file !== false) {
+                                    $agent->writeLog(SzamlaAgentException::PDF_FILE_SAVE_SUCCESS . ': ' . $this->getPdfFileName(), Log::LOG_LEVEL_DEBUG);
+                                } else {
+                                    $errorMsg = SzamlaAgentException::PDF_FILE_SAVE_FAILED . ': ' . SzamlaAgentException::FILE_CREATION_FAILED;
+                                    $agent->writeLog($errorMsg, Log::LOG_LEVEL_DEBUG);
+                                    throw new SzamlaAgentException($errorMsg);
+                                }
                             }
                         }
                     } else {
                         $this->setContent($response['body']);
                     }
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $agent->writeLog(SzamlaAgentException::PDF_FILE_SAVE_FAILED . ': ' . $e->getMessage(), Log::LOG_LEVEL_DEBUG);
                     throw $e;
                 }
@@ -208,7 +226,8 @@ class SzamlaAgentResponse {
      *
      * @throws SzamlaAgentException
      */
-    private function checkFields() {
+    private function checkFields()
+    {
         $response = $this->getResponse();
 
         if ($this->isAgentInvoiceResponse()) {
@@ -222,15 +241,23 @@ class SzamlaAgentResponse {
     /**
      * Létrehozza a válasz adatait tartalmazó XML fájlt
      *
-     * @param  \SimpleXMLElement $xml
+     * @param SimpleXMLElement $xml
      *
      * @throws SzamlaAgentException
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
-    private function createXmlFile(\SimpleXMLElement $xml) {
-        $agent  = $this->getAgent();
-        $xml    = SzamlaAgentUtil::formatXml($xml);
-        $type   = $agent->getResponseType();
+    private function createXmlFile(SimpleXMLElement $xml)
+    {
+        $agent = $this->getAgent();
+
+        if ($this->isTaxPayerXmlResponse()) {
+            $response = $this->getResponse();
+            $xml = SzamlaAgentUtil::formatResponseXml($response['body']);
+        } else {
+            $xml = SzamlaAgentUtil::formatXml($xml);
+        }
+
+        $type = $agent->getResponseType();
 
         $name = '';
         if ($this->isFailed()) {
@@ -240,8 +267,12 @@ class SzamlaAgentResponse {
 
         switch ($type) {
             case self::RESULT_AS_XML:
-            case self::RESULT_AS_TAXPAYER_XML: $postfix = "-xml"; break;
-            case self::RESULT_AS_TEXT:         $postfix = "-text"; break;
+            case self::RESULT_AS_TAXPAYER_XML:
+                $postfix = "-xml";
+                break;
+            case self::RESULT_AS_TEXT:
+                $postfix = "-text";
+                break;
             default:
                 throw new SzamlaAgentException(SzamlaAgentException::RESPONSE_TYPE_NOT_EXISTS . " ($type)");
         }
@@ -253,12 +284,48 @@ class SzamlaAgentResponse {
 
     /**
      * Visszaadja a PDF fájl nevét
-     * (abszolút útvonallal együtt)
+     *
+     * @param bool $withPath
      *
      * @return bool|string
      */
-    public function getPdfFileName() {
-        return base_path().SzamlaAgent::PDF_FILE_SAVE_PATH.DIRECTORY_SEPARATOR.$this->getDocumentNumber() . '.pdf';
+    public function getPdfFileName($withPath = true)
+    {
+        $header = $this->getAgent()->getRequestEntityHeader();
+
+        if ($header instanceof InvoiceHeader && $header->isPreviewPdf()) {
+            $entity = $this->getAgent()->getRequestEntity();
+
+            $name = '';
+            if ($entity != null && $entity instanceof Invoice) {
+                try {
+                    $name .= (new ReflectionClass($entity))->getShortName() . '-';
+                } catch (ReflectionException $e) {
+                }
+            }
+            $documentNumber = strtolower($name) . 'preview-' . SzamlaAgentUtil::getDateTimeWithMilliseconds();
+        } else {
+            $documentNumber = $this->getDocumentNumber();
+        }
+
+        if ($withPath) {
+            return $this->getPdfFileAbsPath($documentNumber . '.pdf');
+        } else {
+            return $documentNumber . '.pdf';
+        }
+
+    }
+
+    /**
+     * Visszaadja a PDF fájl teljes elérési útvonalát
+     *
+     * @param $pdfFileName
+     *
+     * @return bool|string
+     */
+    protected function getPdfFileAbsPath($pdfFileName)
+    {
+        return SzamlaAgentUtil::getAbsPath(SzamlaAgent::PDF_FILE_SAVE_PATH, $pdfFileName);
     }
 
     /**
@@ -266,11 +333,14 @@ class SzamlaAgentResponse {
      *
      * @return bool
      */
-    public function downloadPdf() {
-        if (!empty($this->getPdfFileName())) {
+    public function downloadPdf()
+    {
+        $pdfFileName = $this->getPdfFileName(false);
+
+        if (SzamlaAgentUtil::isNotBlank($pdfFileName)) {
             header("Content-type:application/pdf");
-            header("Content-Disposition:attachment;filename={$this->getDocumentNumber()}.pdf");
-            readfile($this->getPdfFileName());
+            header("Content-Disposition:attachment;filename={$pdfFileName}.pdf");
+            readfile($this->getPdfFileAbsPath($pdfFileName));
             return true;
         }
         return false;
@@ -281,11 +351,9 @@ class SzamlaAgentResponse {
      *
      * @return bool
      */
-    public function isSuccess() {
-        if (!empty($this->getErrorMsg()) || !empty($this->getErrorCode())) {
-            return false;
-        }
-        return true;
+    public function isSuccess()
+    {
+        return !$this->isFailed();
     }
 
     /**
@@ -293,8 +361,14 @@ class SzamlaAgentResponse {
      *
      * @return bool
      */
-    public function isFailed() {
-        return !$this->isSuccess();
+    public function isFailed()
+    {
+        $result = true;
+        $obj = $this->getResponseObj();
+        if ($obj != null) {
+            $result = $obj->isError();
+        }
+        return $result;
     }
 
     /**
@@ -302,14 +376,16 @@ class SzamlaAgentResponse {
      *
      * @return SzamlaAgent
      */
-    private function getAgent() {
+    private function getAgent()
+    {
         return $this->agent;
     }
 
     /**
      * @param SzamlaAgent $agent
      */
-    private function setAgent($agent) {
+    private function setAgent($agent)
+    {
         $this->agent = $agent;
     }
 
@@ -318,28 +394,32 @@ class SzamlaAgentResponse {
      *
      * @return array
      */
-    public function getResponse() {
+    public function getResponse()
+    {
         return $this->response;
     }
 
     /**
      * @param array $response
      */
-    private function setResponse(array $response) {
+    private function setResponse(array $response)
+    {
         $this->response = $response;
     }
 
     /**
      * @return int
      */
-    public function getHttpCode() {
+    public function getHttpCode()
+    {
         return $this->httpCode;
     }
 
     /**
      * @param int $httpCode
      */
-    private function setHttpCode($httpCode) {
+    private function setHttpCode($httpCode)
+    {
         $this->httpCode = $httpCode;
     }
 
@@ -348,14 +428,16 @@ class SzamlaAgentResponse {
      *
      * @return string
      */
-    public function getErrorMsg() {
+    public function getErrorMsg()
+    {
         return $this->errorMsg;
     }
 
     /**
      * @param string $errorMsg
      */
-    private function setErrorMsg($errorMsg) {
+    private function setErrorMsg($errorMsg)
+    {
         $this->errorMsg = $errorMsg;
     }
 
@@ -364,14 +446,16 @@ class SzamlaAgentResponse {
      *
      * @return int
      */
-    public function getErrorCode() {
+    public function getErrorCode()
+    {
         return $this->errorCode;
     }
 
     /**
      * @param int $errorCode
      */
-    private function setErrorCode($errorCode) {
+    private function setErrorCode($errorCode)
+    {
         $this->errorCode = $errorCode;
     }
 
@@ -380,35 +464,40 @@ class SzamlaAgentResponse {
      *
      * @return string
      */
-    public function getDocumentNumber() {
+    public function getDocumentNumber()
+    {
         return $this->documentNumber;
     }
 
     /**
      * @param string $documentNumber
      */
-    private function setDocumentNumber($documentNumber) {
+    private function setDocumentNumber($documentNumber)
+    {
         $this->documentNumber = $documentNumber;
     }
 
     /**
      * @param string $pdfFile
      */
-    private function setPdfFile($pdfFile) {
+    private function setPdfFile($pdfFile)
+    {
         $this->pdfFile = $pdfFile;
     }
 
     /**
-     * @return \SimpleXMLElement
+     * @return SimpleXMLElement
      */
-    protected function getXmlData() {
+    protected function getXmlData()
+    {
         return $this->xmlData;
     }
 
     /**
-     * @param \SimpleXMLElement $xmlData
+     * @param SimpleXMLElement $xmlData
      */
-    protected function setXmlData(\SimpleXMLElement $xmlData) {
+    protected function setXmlData(SimpleXMLElement $xmlData)
+    {
         $this->xmlData = $xmlData;
     }
 
@@ -417,14 +506,16 @@ class SzamlaAgentResponse {
      *
      * @return string
      */
-    protected function getContent() {
+    protected function getContent()
+    {
         return $this->content;
     }
 
     /**
      * @param string $content
      */
-    protected function setContent($content) {
+    protected function setContent($content)
+    {
         $this->content = $content;
     }
 
@@ -432,8 +523,11 @@ class SzamlaAgentResponse {
      * Visszaadja az adózó adatait formázott szövegként
      *
      * @return string
+     *
+     * @deprecated 2.9.10
      */
-    public function getTaxPayerStr() {
+    public function getTaxPayerStr()
+    {
         $result = '';
         if ($this->isTaxPayerXmlResponse()) {
             $result = $this->getResponseObj()->getTaxPayerStr();
@@ -446,14 +540,16 @@ class SzamlaAgentResponse {
      *
      * @return string
      */
-    public function getXmlSchemaType() {
+    public function getXmlSchemaType()
+    {
         return $this->xmlSchemaType;
     }
 
     /**
      * @param string $xmlSchemaType
      */
-    protected function setXmlSchemaType($xmlSchemaType) {
+    protected function setXmlSchemaType($xmlSchemaType)
+    {
         $this->xmlSchemaType = $xmlSchemaType;
     }
 
@@ -462,30 +558,36 @@ class SzamlaAgentResponse {
      *
      * @return object
      */
-    public function getResponseObj() {
+    public function getResponseObj()
+    {
         return $this->responseObj;
     }
 
     /**
      * @param object $responseObj
      */
-    public function setResponseObj($responseObj) {
+    public function setResponseObj($responseObj)
+    {
         $this->responseObj = $responseObj;
     }
 
-    protected function isAgentInvoiceTextResponse() {
+    protected function isAgentInvoiceTextResponse()
+    {
         return ($this->isAgentInvoiceResponse() && $this->getAgent()->getResponseType() == self::RESULT_AS_TEXT);
     }
 
-    protected function isAgentInvoiceXmlResponse() {
+    protected function isAgentInvoiceXmlResponse()
+    {
         return ($this->isAgentInvoiceResponse() && $this->getAgent()->getResponseType() == self::RESULT_AS_XML);
     }
 
-    protected function isAgentReceiptTextResponse() {
+    protected function isAgentReceiptTextResponse()
+    {
         return ($this->isAgentReceiptResponse() && $this->getAgent()->getResponseType() == self::RESULT_AS_TEXT);
     }
 
-    protected function isAgentReceiptXmlResponse() {
+    protected function isAgentReceiptXmlResponse()
+    {
         return ($this->isAgentReceiptResponse() && $this->getAgent()->getResponseType() == self::RESULT_AS_XML);
     }
 
@@ -494,7 +596,8 @@ class SzamlaAgentResponse {
      *
      * @return bool
      */
-    public function isTaxPayerXmlResponse() {
+    public function isTaxPayerXmlResponse()
+    {
         $result = true;
 
         if ($this->getXmlSchemaType() != 'taxpayer') {
@@ -512,11 +615,13 @@ class SzamlaAgentResponse {
      *
      * @return bool
      */
-    public function isNotTaxPayerXmlResponse() {
+    public function isNotTaxPayerXmlResponse()
+    {
         return !$this->isTaxPayerXmlResponse();
     }
 
-    protected function isXmlResponse() {
+    protected function isXmlResponse()
+    {
         return ($this->isAgentInvoiceXmlResponse() || $this->isAgentReceiptXmlResponse() || $this->isTaxPayerXmlResponse());
     }
 
@@ -525,7 +630,8 @@ class SzamlaAgentResponse {
      *
      * @return bool
      */
-    public function isAgentInvoiceResponse() {
+    public function isAgentInvoiceResponse()
+    {
         return ($this->getXmlSchemaType() == Document::DOCUMENT_TYPE_INVOICE);
     }
 
@@ -534,7 +640,8 @@ class SzamlaAgentResponse {
      *
      * @return bool
      */
-    public function isAgentProformaResponse() {
+    public function isAgentProformaResponse()
+    {
         return ($this->getXmlSchemaType() == Document::DOCUMENT_TYPE_PROFORMA);
     }
 
@@ -543,7 +650,8 @@ class SzamlaAgentResponse {
      *
      * @return bool
      */
-    public function isAgentReceiptResponse() {
+    public function isAgentReceiptResponse()
+    {
         return ($this->getXmlSchemaType() == Document::DOCUMENT_TYPE_RECEIPT);
     }
 
@@ -552,13 +660,15 @@ class SzamlaAgentResponse {
      *
      * @return bool
      */
-    public function isTaxPayerResponse() {
+    public function isTaxPayerResponse()
+    {
         return ($this->getXmlSchemaType() == 'taxpayer');
     }
 
-    private function buildResponseTextData() {
+    private function buildResponseTextData()
+    {
         $response = $this->getResponse();
-        $xmlData = new \SimpleXMLElement('<?xml version="1.0" encoding="utf-8"?><response></response>');
+        $xmlData = new SimpleXMLElement('<?xml version="1.0" encoding="utf-8"?><response></response>');
         $headers = $xmlData->addChild('headers');
 
         foreach ($response['headers'] as $key => $value) {
@@ -576,11 +686,14 @@ class SzamlaAgentResponse {
         $this->setXmlData($xmlData);
     }
 
-    private function buildResponseXmlData() {
+    private function buildResponseXmlData()
+    {
         $response = $this->getResponse();
-        $xmlData = new \SimpleXMLElement($response['body']);
-
-        if ($this->isNotTaxPayerXmlResponse()) {
+        if ($this->isTaxPayerXmlResponse()) {
+            $xmlData = new SimpleXMLExtended($response['body']);
+            $xmlData = SzamlaAgentUtil::removeNamespaces($xmlData);
+        } else {
+            $xmlData = new SimpleXMLElement($response['body']);
             // Fejléc adatok hozzáadása
             $headers = $xmlData->addChild('headers');
             foreach ($response['headers'] as $key => $header) {
@@ -595,7 +708,8 @@ class SzamlaAgentResponse {
      *
      * @return string
      */
-    public function toPdf() {
+    public function toPdf()
+    {
         return $this->getPdfFile();
     }
 
@@ -604,7 +718,8 @@ class SzamlaAgentResponse {
      *
      * @return string
      */
-    public function getPdfFile() {
+    public function getPdfFile()
+    {
         return $this->pdfFile;
     }
 
@@ -613,7 +728,8 @@ class SzamlaAgentResponse {
      *
      * @return string
      */
-    public function toXML() {
+    public function toXML()
+    {
         if (!empty($this->getXmlData())) {
             $data = $this->getXmlData();
             return $data->asXML();
@@ -624,22 +740,35 @@ class SzamlaAgentResponse {
     /**
      * Visszaadja a válasz adatait JSON formátumban
      *
-     * @return false|string
+     * @return string
+     * @throws SzamlaAgentException
      */
-    public function toJson() {
-        return json_encode($this->getResponseData());
+    public function toJson()
+    {
+        $result = json_encode($this->getResponseData());
+        if ($result === false || is_null($result) || !SzamlaAgentUtil::isValidJSON($result)) {
+            throw new SzamlaAgentException(SzamlaAgentException::INVALID_JSON);
+        }
+        return $result;
     }
 
-    protected function toArray() {
-        return json_decode($this->toJson(),TRUE);
+    /**
+     * @return mixed
+     * @throws SzamlaAgentException
+     */
+    protected function toArray()
+    {
+        return json_decode($this->toJson(), TRUE);
     }
 
     /**
      * Visszaadja a válasz adatait
      *
      * @return mixed
+     * @throws SzamlaAgentException
      */
-    public function getData() {
+    public function getData()
+    {
         return $this->toArray();
     }
 
@@ -648,14 +777,16 @@ class SzamlaAgentResponse {
      *
      * @return object
      */
-    public function getDataObj() {
+    public function getDataObj()
+    {
         return $this->getResponseObj();
     }
 
     /**
      * @return mixed
      */
-    public function getResponseData() {
+    public function getResponseData()
+    {
         if ($this->isNotTaxPayerXmlResponse()) {
             $result['documentNumber'] = $this->getDocumentNumber();
         }
@@ -668,9 +799,13 @@ class SzamlaAgentResponse {
         return $result;
     }
 
-    private function buildResponseObjData() {
-        $obj    = null;
-        $type   = $this->getAgent()->getResponseType();
+    /**
+     * @throws SzamlaAgentException
+     */
+    private function buildResponseObjData()
+    {
+        $obj = null;
+        $type = $this->getAgent()->getResponseType();
         $result = $this->getData()['result'];
 
         if ($this->isAgentInvoiceResponse()) {
@@ -683,11 +818,40 @@ class SzamlaAgentResponse {
             $obj = TaxPayerResponse::parseData($result);
         }
 
-        if ($obj->isError()) {
+        $this->setResponseObj($obj);
+
+        if ($obj->isError() || $this->hasInvoiceNotificationSendError()) {
             $this->setErrorCode($obj->getErrorCode());
             $this->setErrorMsg($obj->getErrorMessage());
-        } else {
-            $this->setResponseObj($obj);
         }
+    }
+
+    /**
+     * Visszaadja, hogy a számlaértesítő kézbesítése sikertelen volt-e
+     *
+     * @return boolean
+     */
+    public function hasInvoiceNotificationSendError()
+    {
+        if ($this->isAgentInvoiceResponse() && $this->getResponseObj()->hasInvoiceNotificationSendError()) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Visszaadja az NAV-tól érkező nyers adatokat további feldolgozáshoz.
+     * A kapott adatokat javasolt egy saját XML feldolgozóval kezelni.
+     *
+     * @return string|null
+     */
+    public function getTaxPayerData()
+    {
+        $data = null;
+        if ($this->isTaxPayerResponse()) {
+            $response = $this->getResponse();
+            $data = $response['body'];
+        }
+        return $data;
     }
 }

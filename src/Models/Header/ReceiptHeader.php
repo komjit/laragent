@@ -12,7 +12,8 @@ use KomjIT\LarAgent\Models\SzamlaAgentUtil;
  *
  * @package LarAgent\Header
  */
-class ReceiptHeader extends DocumentHeader {
+class ReceiptHeader extends DocumentHeader
+{
 
     /**
      * Nyugtaszám
@@ -113,7 +114,8 @@ class ReceiptHeader extends DocumentHeader {
      *
      * @param string $receiptNumber nyugtaszám
      */
-    function __construct($receiptNumber = '') {
+    function __construct($receiptNumber = '')
+    {
         $this->setReceipt(true);
         $this->setReceiptNumber($receiptNumber);
         $this->setPaymentMethod(Document::PAYMENT_METHOD_CASH);
@@ -129,7 +131,8 @@ class ReceiptHeader extends DocumentHeader {
      * @return string
      * @throws SzamlaAgentException
      */
-    protected function checkField($field, $value) {
+    protected function checkField($field, $value)
+    {
         if (property_exists($this, $field)) {
             $required = in_array($field, $this->getRequiredFields());
             switch ($field) {
@@ -157,7 +160,8 @@ class ReceiptHeader extends DocumentHeader {
      *
      * @throws SzamlaAgentException
      */
-    protected function checkFields() {
+    protected function checkFields()
+    {
         $fields = get_object_vars($this);
         foreach ($fields as $field => $value) {
             $this->checkField($field, $value);
@@ -172,7 +176,8 @@ class ReceiptHeader extends DocumentHeader {
      * @return array
      * @throws SzamlaAgentException
      */
-    public function buildXmlData(SzamlaAgentRequest $request) {
+    public function buildXmlData(SzamlaAgentRequest $request)
+    {
         try {
             if (empty($request)) {
                 throw new SzamlaAgentException(SzamlaAgentException::XML_DATA_NOT_AVAILABLE);
@@ -210,12 +215,13 @@ class ReceiptHeader extends DocumentHeader {
      * Összeállítja és visszaadja az adott mezőkhöz tartozó adatokat
      *
      * @param SzamlaAgentRequest $request
-     * @param array              $fields
+     * @param array $fields
      *
      * @return array
      * @throws SzamlaAgentException
      */
-    private function buildFieldsData(SzamlaAgentRequest $request, array $fields) {
+    private function buildFieldsData(SzamlaAgentRequest $request, array $fields)
+    {
         $data = [];
 
         if (empty($request) || !empty($field)) {
@@ -224,16 +230,36 @@ class ReceiptHeader extends DocumentHeader {
 
         foreach ($fields as $key) {
             switch ($key) {
-                case 'hivasAzonosito': $value = (SzamlaAgentUtil::isNotBlank($this->getCallId())) ? $this->getCallId() : null; break;
-                case 'elotag':         $value = $this->getPrefix(); break;
-                case 'fizmod':         $value = $this->getPaymentMethod(); break;
-                case 'penznem':        $value = $this->getCurrency(); break;
-                case 'devizabank':     $value = (SzamlaAgentUtil::isNotBlank($this->getExchangeBank())) ? $this->getExchangeBank() : null; break;
-                case 'devizaarf':      $value = (SzamlaAgentUtil::isNotNull($this->getExchangeRate())) ? SzamlaAgentUtil::doubleFormat($this->getExchangeRate()) : null; break;
-                case 'megjegyzes':     $value = (SzamlaAgentUtil::isNotBlank($this->getComment())) ? $this->getComment() : null; break;
-                case 'pdfSablon':      $value = (SzamlaAgentUtil::isNotBlank($this->getPdfTemplate())) ? $this->getPdfTemplate() : null; break;
-                case 'fokonyvVevo':    $value = (SzamlaAgentUtil::isNotBlank($this->getBuyerLedgerId())) ? $this->getBuyerLedgerId() : null; break;
-                case 'nyugtaszam':     $value = $this->getReceiptNumber(); break;
+                case 'hivasAzonosito':
+                    $value = (SzamlaAgentUtil::isNotBlank($this->getCallId())) ? $this->getCallId() : null;
+                    break;
+                case 'elotag':
+                    $value = $this->getPrefix();
+                    break;
+                case 'fizmod':
+                    $value = $this->getPaymentMethod();
+                    break;
+                case 'penznem':
+                    $value = $this->getCurrency();
+                    break;
+                case 'devizabank':
+                    $value = (SzamlaAgentUtil::isNotBlank($this->getExchangeBank())) ? $this->getExchangeBank() : null;
+                    break;
+                case 'devizaarf':
+                    $value = (SzamlaAgentUtil::isNotNull($this->getExchangeRate())) ? SzamlaAgentUtil::doubleFormat($this->getExchangeRate()) : null;
+                    break;
+                case 'megjegyzes':
+                    $value = (SzamlaAgentUtil::isNotBlank($this->getComment())) ? $this->getComment() : null;
+                    break;
+                case 'pdfSablon':
+                    $value = (SzamlaAgentUtil::isNotBlank($this->getPdfTemplate())) ? $this->getPdfTemplate() : null;
+                    break;
+                case 'fokonyvVevo':
+                    $value = (SzamlaAgentUtil::isNotBlank($this->getBuyerLedgerId())) ? $this->getBuyerLedgerId() : null;
+                    break;
+                case 'nyugtaszam':
+                    $value = $this->getReceiptNumber();
+                    break;
                 default:
                     throw new SzamlaAgentException(SzamlaAgentException::XML_KEY_NOT_EXISTS . ": {$key}");
             }
@@ -248,35 +274,40 @@ class ReceiptHeader extends DocumentHeader {
     /**
      * @return string
      */
-    public function getPaymentMethod() {
+    public function getPaymentMethod()
+    {
         return $this->paymentMethod;
     }
 
     /**
      * @param string $paymentMethod
      */
-    public function setPaymentMethod($paymentMethod) {
+    public function setPaymentMethod($paymentMethod)
+    {
         $this->paymentMethod = $paymentMethod;
     }
 
     /**
      * @return string
      */
-    public function getCurrency() {
+    public function getCurrency()
+    {
         return $this->currency;
     }
 
     /**
      * @param string $currency
      */
-    public function setCurrency($currency) {
+    public function setCurrency($currency)
+    {
         $this->currency = $currency;
     }
 
     /**
      * @return string
      */
-    public function getPrefix() {
+    public function getPrefix()
+    {
         return $this->prefix;
     }
 
@@ -286,119 +317,142 @@ class ReceiptHeader extends DocumentHeader {
      *
      * @param string $prefix
      */
-    public function setPrefix($prefix) {
+    public function setPrefix($prefix)
+    {
         $this->prefix = $prefix;
     }
 
     /**
      * @return string
      */
-    public function getComment() {
+    public function getComment()
+    {
         return $this->comment;
     }
 
     /**
      * @param string $comment
      */
-    public function setComment($comment) {
+    public function setComment($comment)
+    {
         $this->comment = $comment;
     }
 
     /**
      * @return string
      */
-    public function getExchangeBank() {
+    public function getExchangeBank()
+    {
         return $this->exchangeBank;
     }
 
     /**
      * @param string $exchangeBank
      */
-    public function setExchangeBank($exchangeBank) {
+    public function setExchangeBank($exchangeBank)
+    {
         $this->exchangeBank = $exchangeBank;
     }
 
     /**
      * @return float
      */
-    public function getExchangeRate() {
+    public function getExchangeRate()
+    {
         return $this->exchangeRate;
     }
 
     /**
      * @param float $exchangeRate
      */
-    public function setExchangeRate($exchangeRate) {
+    public function setExchangeRate($exchangeRate)
+    {
         $this->exchangeRate = (float)$exchangeRate;
     }
 
     /**
      * @return string
      */
-    public function getReceiptNumber() {
+    public function getReceiptNumber()
+    {
         return $this->receiptNumber;
     }
 
     /**
+     * Nyugta sorszám beállítása
+     *
+     * A nyugta létrehozásánál ne használd, mert a kiállított nyugták számait a Számlázz.hu
+     * a jogszabálynak megfelelően automatikusan osztja ki: 1-től indulva, kihagyásmentesen.
+     * @see https://tudastar.szamlazz.hu/gyik/szamlaszam-formatumok-mikor-kell-megadni
+     *
      * @param string $receiptNumber
      */
-    public function setReceiptNumber($receiptNumber) {
+    public function setReceiptNumber($receiptNumber)
+    {
         $this->receiptNumber = $receiptNumber;
     }
 
     /**
      * @return array
      */
-    protected function getRequiredFields() {
+    protected function getRequiredFields()
+    {
         return $this->requiredFields;
     }
 
     /**
      * @param array $requiredFields
      */
-    protected function setRequiredFields(array $requiredFields) {
+    protected function setRequiredFields(array $requiredFields)
+    {
         $this->requiredFields = $requiredFields;
     }
 
     /**
      * @return string
      */
-    public function getCallId() {
+    public function getCallId()
+    {
         return $this->callId;
     }
 
     /**
      * @param string $callId
      */
-    public function setCallId($callId) {
+    public function setCallId($callId)
+    {
         $this->callId = $callId;
     }
 
     /**
      * @return string
      */
-    public function getPdfTemplate() {
+    public function getPdfTemplate()
+    {
         return $this->pdfTemplate;
     }
 
     /**
      * @param string $pdfTemplate
      */
-    public function setPdfTemplate($pdfTemplate) {
+    public function setPdfTemplate($pdfTemplate)
+    {
         $this->pdfTemplate = $pdfTemplate;
     }
 
     /**
      * @return string
      */
-    public function getBuyerLedgerId() {
+    public function getBuyerLedgerId()
+    {
         return $this->buyerLedgerId;
     }
 
     /**
      * @param string $buyerLedgerId
      */
-    public function setBuyerLedgerId($buyerLedgerId) {
+    public function setBuyerLedgerId($buyerLedgerId)
+    {
         $this->buyerLedgerId = $buyerLedgerId;
     }
 }

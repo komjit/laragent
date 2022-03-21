@@ -45,13 +45,6 @@ class SzamlaAgentSetting
     private $apiKey;
 
     /**
-     * E-számla esetén a kulcstartót nyitó jelszó
-     *
-     * @var string
-     */
-    private $keychain = '';
-
-    /**
      * Szeretnénk-e PDF formátumban is megkapni a bizonylatot?
      *
      * @var bool
@@ -87,19 +80,43 @@ class SzamlaAgentSetting
      */
     private $aggregator;
 
+    /**
+     * @var bool
+     */
+    private $guardian;
+
+    /**
+     * @var bool
+     */
+    private $invoiceItemIdentifier;
+
+    /**
+     * A számlát a külső rendszer (Számla Agentet használó rendszer) ezzel az adattal azonosítja. Az adatot trimmelve tároljuk.
+     * (a számla adatai később ezzel az adattal is lekérdezhetők lesznek)
+     *
+     * @var string
+     */
+    private $invoiceExternalId;
+
+    /**
+     * @var string
+     */
+    private $taxNumber;
+
 
     /**
      * Számla Agent beállítás létrehozása
      *
-     * @param string $username     szamlazz.hu fiók felhasználónév vagy e-mail cím
-     * @param string $password     szamlazz.hu fiók jelszava
-     * @param string $apiKey       SzámlaAgent kulcs
-     * @param bool   $downloadPdf  szeretnénk-e PDF formátumban is megkapni a bizonylatot
-     * @param int    $copiesCount  bizonylat másolatok száma, ha PDF letöltést választottuk
-     * @param int    $responseType válasz típusa (szöveges vagy XML)
-     * @param string $aggregator   webáruházat futtató motor neve
+     * @param string $username szamlazz.hu fiók felhasználónév vagy e-mail cím
+     * @param string $password szamlazz.hu fiók jelszava
+     * @param string $apiKey SzámlaAgent kulcs
+     * @param bool $downloadPdf szeretnénk-e PDF formátumban is megkapni a bizonylatot
+     * @param int $copiesCount bizonylat másolatok száma, ha PDF letöltést választottuk
+     * @param int $responseType válasz típusa (szöveges vagy XML)
+     * @param string $aggregator webáruházat futtató motor neve
      */
-    function __construct($username, $password, $apiKey, $downloadPdf = true, $copiesCount = self::DOWNLOAD_COPIES_COUNT, $responseType = SzamlaAgentResponse::RESULT_AS_TEXT, $aggregator = '') {
+    function __construct($username, $password, $apiKey, $downloadPdf = true, $copiesCount = self::DOWNLOAD_COPIES_COUNT, $responseType = SzamlaAgentResponse::RESULT_AS_TEXT, $aggregator = '')
+    {
         $this->setUsername($username);
         $this->setPassword($password);
         $this->setApiKey($apiKey);
@@ -114,7 +131,8 @@ class SzamlaAgentSetting
      *
      * @return string
      */
-    public function getUsername() {
+    public function getUsername()
+    {
         return $this->username;
     }
 
@@ -124,7 +142,8 @@ class SzamlaAgentSetting
      *
      * @param string $username
      */
-    public function setUsername($username) {
+    public function setUsername($username)
+    {
         $this->username = $username;
     }
 
@@ -133,7 +152,8 @@ class SzamlaAgentSetting
      *
      * @return string
      */
-    public function getPassword() {
+    public function getPassword()
+    {
         return $this->password;
     }
 
@@ -143,7 +163,8 @@ class SzamlaAgentSetting
      *
      * @param string $password
      */
-    public function setPassword($password) {
+    public function setPassword($password)
+    {
         $this->password = $password;
     }
 
@@ -152,7 +173,8 @@ class SzamlaAgentSetting
      *
      * @return string
      */
-    public function getApiKey() {
+    public function getApiKey()
+    {
         return $this->apiKey;
     }
 
@@ -162,26 +184,9 @@ class SzamlaAgentSetting
      * @link  https://www.szamlazz.hu/blog/2019/07/szamla_agent_kulcsok/
      * @param string $apiKey
      */
-    public function setApiKey($apiKey) {
+    public function setApiKey($apiKey)
+    {
         $this->apiKey = $apiKey;
-    }
-
-    /**
-     * Visszaadja a kulcstartót nyitó jelszó
-     *
-     * @return string
-     */
-    public function getKeychain() {
-        return $this->keychain;
-    }
-
-    /**
-     * Beállítja a kulcstartót nyitó jelszó
-     *
-     * @param string $keychain
-     */
-    public function setKeychain($keychain) {
-        $this->keychain = $keychain;
     }
 
     /**
@@ -189,7 +194,8 @@ class SzamlaAgentSetting
      *
      * @return bool
      */
-    public function isDownloadPdf() {
+    public function isDownloadPdf()
+    {
         return $this->downloadPdf;
     }
 
@@ -198,7 +204,8 @@ class SzamlaAgentSetting
      *
      * @param bool $downloadPdf
      */
-    public function setDownloadPdf($downloadPdf) {
+    public function setDownloadPdf($downloadPdf)
+    {
         $this->downloadPdf = $downloadPdf;
     }
 
@@ -208,7 +215,8 @@ class SzamlaAgentSetting
      *
      * @return int
      */
-    public function getDownloadCopiesCount() {
+    public function getDownloadCopiesCount()
+    {
         return $this->downloadCopiesCount;
     }
 
@@ -220,7 +228,8 @@ class SzamlaAgentSetting
      *
      * @param int $downloadCopiesCount
      */
-    public function setDownloadCopiesCount($downloadCopiesCount) {
+    public function setDownloadCopiesCount($downloadCopiesCount)
+    {
         $this->downloadCopiesCount = $downloadCopiesCount;
     }
 
@@ -229,7 +238,8 @@ class SzamlaAgentSetting
      *
      * @return int
      */
-    public function getResponseType() {
+    public function getResponseType()
+    {
         return $this->responseType;
     }
 
@@ -241,7 +251,8 @@ class SzamlaAgentSetting
      *
      * @param int $responseType
      */
-    public function setResponseType($responseType) {
+    public function setResponseType($responseType)
+    {
         $this->responseType = $responseType;
     }
 
@@ -250,7 +261,8 @@ class SzamlaAgentSetting
      *
      * @return string
      */
-    public function getAggregator() {
+    public function getAggregator()
+    {
         return $this->aggregator;
     }
 
@@ -261,8 +273,78 @@ class SzamlaAgentSetting
      *
      * @param string $aggregator
      */
-    public function setAggregator($aggregator) {
+    public function setAggregator($aggregator)
+    {
         $this->aggregator = $aggregator;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getGuardian()
+    {
+        return $this->guardian;
+    }
+
+    /**
+     * @param bool $guardian
+     */
+    public function setGuardian($guardian)
+    {
+        $this->guardian = $guardian;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isInvoiceItemIdentifier()
+    {
+        return $this->invoiceItemIdentifier;
+    }
+
+    /**
+     * @param bool $invoiceItemIdentifier
+     */
+    public function setInvoiceItemIdentifier($invoiceItemIdentifier)
+    {
+        $this->invoiceItemIdentifier = $invoiceItemIdentifier;
+    }
+
+    /**
+     * @return string
+     */
+    public function getInvoiceExternalId()
+    {
+        return $this->invoiceExternalId;
+    }
+
+    /**
+     * Beállítja a külső számlaazonosítót
+     *
+     * A számlát a külső rendszer (Számla Agentet használó rendszer) ezzel az adattal azonosítja. Az adatot trimmelve tároljuk.
+     * (a számla adatai később ezzel az adattal is lekérdezhetők lesznek)
+     *
+     * @param string $invoiceExternalId
+     */
+    public function setInvoiceExternalId($invoiceExternalId)
+    {
+        $this->invoiceExternalId = $invoiceExternalId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTaxNumber()
+    {
+        return $this->taxNumber;
+    }
+
+    /**
+     * @param string $taxNumber
+     */
+    public function setTaxNumber($taxNumber)
+    {
+        $this->taxNumber = $taxNumber;
     }
 
     /**
@@ -273,27 +355,28 @@ class SzamlaAgentSetting
      * @return array
      * @throws SzamlaAgentException
      */
-    public function buildXmlData(SzamlaAgentRequest $request) {
+    public function buildXmlData(SzamlaAgentRequest $request)
+    {
         $settings = ['felhasznalo', 'jelszo', 'szamlaagentkulcs'];
 
         switch ($request->getXmlName()) {
             case $request::XML_SCHEMA_CREATE_INVOICE:
-                $data = $this->buildFieldsData($request, array_merge($settings, ['eszamla', 'szamlaLetoltes', 'szamlaLetoltesPld', 'valaszVerzio', 'aggregator']));
+                $data = $this->buildFieldsData($request, array_merge($settings, ['eszamla', 'szamlaLetoltes', 'szamlaLetoltesPld', 'valaszVerzio', 'aggregator', 'guardian', 'cikkazoninvoice', 'szamlaKulsoAzon']));
                 break;
             case $request::XML_SCHEMA_DELETE_PROFORMA:
                 $data = $this->buildFieldsData($request, $settings);
                 break;
             case $request::XML_SCHEMA_CREATE_REVERSE_INVOICE:
-                $data = $this->buildFieldsData($request, array_merge($settings, ['eszamla', 'szamlaLetoltes', 'szamlaLetoltesPld', 'aggregator', 'valaszVerzio']));
+                $data = $this->buildFieldsData($request, array_merge($settings, ['eszamla', 'szamlaLetoltes', 'szamlaLetoltesPld', 'aggregator', 'guardian', 'valaszVerzio', 'szamlaKulsoAzon']));
                 break;
             case $request::XML_SCHEMA_PAY_INVOICE:
-                $data = $this->buildFieldsData($request, array_merge($settings, ['szamlaszam', 'additiv', 'aggregator', 'valaszVerzio']));
+                $data = $this->buildFieldsData($request, array_merge($settings, ['szamlaszam', 'adoszam', 'additiv', 'aggregator', 'valaszVerzio']));
                 break;
             case $request::XML_SCHEMA_REQUEST_INVOICE_XML:
                 $data = $this->buildFieldsData($request, array_merge($settings, ['szamlaszam', 'rendelesSzam', 'pdf']));
                 break;
             case $request::XML_SCHEMA_REQUEST_INVOICE_PDF:
-                $data = $this->buildFieldsData($request, array_merge($settings, ['szamlaszam', 'rendelesSzam', 'valaszVerzio']));
+                $data = $this->buildFieldsData($request, array_merge($settings, ['szamlaszam', 'rendelesSzam', 'valaszVerzio', 'szamlaKulsoAzon']));
                 break;
             case $request::XML_SCHEMA_CREATE_RECEIPT:
             case $request::XML_SCHEMA_CREATE_REVERSE_RECEIPT:
@@ -314,30 +397,64 @@ class SzamlaAgentSetting
      * Összeállítja és visszaadja az adott mezőkhöz tartozó adatokat
      *
      * @param SzamlaAgentRequest $request
-     * @param array              $fields
+     * @param array $fields
      *
      * @return array
      * @throws SzamlaAgentException
      */
-    private function buildFieldsData(SzamlaAgentRequest $request, array $fields) {
+    private function buildFieldsData(SzamlaAgentRequest $request, array $fields)
+    {
         $data = [];
 
         foreach ($fields as $key) {
             switch ($key) {
-                case 'felhasznalo':       $value = $this->getUsername(); break;
-                case 'jelszo':            $value = $this->getPassword(); break;
-                case 'szamlaagentkulcs':  $value = $this->getApiKey();   break;
-                case 'kulcstartojelszo':  $value = $this->getKeychain(); break;
+                case 'felhasznalo':
+                    $value = $this->getUsername();
+                    break;
+                case 'jelszo':
+                    $value = $this->getPassword();
+                    break;
+                case 'szamlaagentkulcs':
+                    $value = $this->getApiKey();
+                    break;
                 case 'szamlaLetoltes':
                 case 'pdf':
-                case 'pdfLetoltes':       $value = $this->isDownloadPdf(); break;
-                case 'szamlaLetoltesPld': $value = $this->getDownloadCopiesCount(); break;
-                case 'valaszVerzio':      $value = $this->getResponseType(); break;
-                case 'aggregator':        $value = $this->getAggregator(); break;
-                case 'eszamla':           $value = $request->getEntity()->getHeader()->isEInvoice(); break;
-                case 'additiv':           $value = $request->getEntity()->isAdditive(); break;
-                case 'szamlaszam':        $value = $request->getEntity()->getHeader()->getInvoiceNumber(); break;
-                case 'rendelesSzam':      $value = $request->getEntity()->getHeader()->getOrderNumber(); break;
+                case 'pdfLetoltes':
+                    $value = $this->isDownloadPdf();
+                    break;
+                case 'szamlaLetoltesPld':
+                    $value = $this->getDownloadCopiesCount();
+                    break;
+                case 'valaszVerzio':
+                    $value = $this->getResponseType();
+                    break;
+                case 'aggregator':
+                    $value = $this->getAggregator();
+                    break;
+                case 'guardian':
+                    $value = $this->getGuardian();
+                    break;
+                case 'cikkazoninvoice':
+                    $value = $this->isInvoiceItemIdentifier();
+                    break;
+                case 'szamlaKulsoAzon':
+                    $value = $this->getInvoiceExternalId();
+                    break;
+                case 'eszamla':
+                    $value = $request->getEntity()->getHeader()->isEInvoice();
+                    break;
+                case 'additiv':
+                    $value = $request->getEntity()->isAdditive();
+                    break;
+                case 'szamlaszam':
+                    $value = $request->getEntity()->getHeader()->getInvoiceNumber();
+                    break;
+                case 'rendelesSzam':
+                    $value = $request->getEntity()->getHeader()->getOrderNumber();
+                    break;
+                case 'adoszam':
+                    $value = $this->getTaxNumber();
+                    break;
                 default:
                     throw new SzamlaAgentException(SzamlaAgentException::XML_KEY_NOT_EXISTS . ": {$key}");
             }

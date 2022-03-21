@@ -46,10 +46,11 @@ class CreditNote
      * Jóváírás létrehozása
      *
      * @param string $paymentMode jóváírás jogcíme (fizetési módja)
-     * @param double $amount      jóváírás összege
+     * @param double $amount jóváírás összege
      * @param string $description jóváírás leírása
      */
-    protected function __construct($paymentMode = Document::PAYMENT_METHOD_TRANSFER, $amount = 0.0, $description = '') {
+    protected function __construct($paymentMode = Document::PAYMENT_METHOD_TRANSFER, $amount = 0.0, $description = '')
+    {
         $this->setPaymentMode($paymentMode);
         $this->setAmount($amount);
         $this->setDescription($description);
@@ -58,49 +59,56 @@ class CreditNote
     /**
      * @return array
      */
-    protected function getRequiredFields() {
+    protected function getRequiredFields()
+    {
         return $this->requiredFields;
     }
 
     /**
      * @return string
      */
-    public function getPaymentMode() {
+    public function getPaymentMode()
+    {
         return $this->paymentMode;
     }
 
     /**
      * @param string $paymentMode
      */
-    public function setPaymentMode($paymentMode) {
+    public function setPaymentMode($paymentMode)
+    {
         $this->paymentMode = $paymentMode;
     }
 
     /**
      * @return float
      */
-    public function getAmount() {
+    public function getAmount()
+    {
         return $this->amount;
     }
 
     /**
      * @param float $amount
      */
-    public function setAmount($amount) {
+    public function setAmount($amount)
+    {
         $this->amount = (float)$amount;
     }
 
     /**
      * @return string
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
     /**
      * @param string $description
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
     }
 }

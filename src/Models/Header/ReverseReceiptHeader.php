@@ -10,7 +10,8 @@ use KomjIT\LarAgent\Models\SzamlaAgentUtil;
  *
  * @package LarAgent\Header
  */
-class ReverseReceiptHeader extends ReceiptHeader {
+class ReverseReceiptHeader extends ReceiptHeader
+{
 
     /**
      * XML-ben kötelezően kitöltendő mezők
@@ -25,7 +26,8 @@ class ReverseReceiptHeader extends ReceiptHeader {
      *
      * @param string $receiptNumber nyugtaszám
      */
-    function __construct($receiptNumber = '') {
+    function __construct($receiptNumber = '')
+    {
         parent::__construct($receiptNumber);
         $this->setReverseReceipt(true);
     }
@@ -39,7 +41,8 @@ class ReverseReceiptHeader extends ReceiptHeader {
      * @return string
      * @throws SzamlaAgentException
      */
-    public function checkField($field, $value) {
+    public function checkField($field, $value)
+    {
         if (property_exists(get_parent_class($this), $field) || property_exists($this, $field)) {
             $required = in_array($field, $this->getRequiredFields());
             switch ($field) {
