@@ -17,7 +17,7 @@ class Log
     /**
      * Naplók útvonala
      */
-    const LOG_PATH = './logs';
+    const LOG_PATH = '/storage/logs/laragent';
 
     /**
      * Naplózási szint: nincs naplózás
@@ -137,7 +137,7 @@ class Log
     public static function writeLog($pMessage, $pType = self::LOG_LEVEL_DEBUG, $pEmail = '')
     {
         $log = Log::get();
-        $filename = SzamlaAgentUtil::getAbsPath($log->getLogPath(), $log->getLogFileName());
+        $filename = base_path().$log->getLogPath().DIRECTORY_SEPARATOR.$log->getLogFileName();
         $remoteAddr = (isset($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : '';
         $logType = SzamlaAgentUtil::isNotBlank($log->getLogTypeStr($pType)) ? ' [' . $log->getLogTypeStr($pType) . '] ' : '';
         $message = '[' . date('Y-m-d H:i:s') . '] [' . $remoteAddr . ']' . $logType . $pMessage . PHP_EOL;

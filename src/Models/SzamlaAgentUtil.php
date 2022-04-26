@@ -170,7 +170,7 @@ class SzamlaAgentUtil
         }
 
         $fileName = $prefix . '-' . strtolower($name) . '-' . self::getDateTimeWithMilliseconds() . '.xml';
-        return self::getAbsPath(SzamlaAgent::XML_FILE_SAVE_PATH, $fileName);
+        return base_path().SzamlaAgent::XML_FILE_SAVE_PATH.DIRECTORY_SEPARATOR.$fileName;
     }
 
 
@@ -316,7 +316,7 @@ class SzamlaAgentUtil
      */
     public static function getDefaultAttachmentPath($fileName)
     {
-        return self::getRealPath(self::getBasePath() . DIRECTORY_SEPARATOR . SzamlaAgent::ATTACHMENTS_SAVE_PATH . DIRECTORY_SEPARATOR . $fileName);
+        return base_path().SzamlaAgent::ATTACHMENTS_SAVE_PATH . DIRECTORY_SEPARATOR . $fileName;
     }
 
     /**
