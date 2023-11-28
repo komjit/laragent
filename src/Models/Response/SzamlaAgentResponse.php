@@ -278,7 +278,11 @@ class SzamlaAgentResponse
         }
 
         $fileName = SzamlaAgentUtil::getXmlFileName('response', $name . $postfix, $agent->getRequest()->getEntity());
-        $xml->save($fileName);
+        $xmlSaved = $xml->save($fileName);
+
+        if (!$xmlSaved) {
+            throw new SzamlaAgentException(SzamlaAgentException::XML_FILE_SAVE_FAILED);
+        }
         $agent->writeLog("XML fájl mentése sikeres: " . SzamlaAgentUtil::getRealPath($fileName), Log::LOG_LEVEL_DEBUG);
     }
 
@@ -333,13 +337,13 @@ class SzamlaAgentResponse
      *
      * @return bool
      */
-    public function downloadPdf()
+    public function downloadPdf($fileName = null)
     {
         $pdfFileName = $this->getPdfFileName(false);
 
         if (SzamlaAgentUtil::isNotBlank($pdfFileName)) {
             header("Content-type:application/pdf");
-            header("Content-Disposition:attachment;filename={$pdfFileName}");
+            header("Content-Disposition:attachment;filename=" . (is_null($fileName) ? $pdfFileName : $fileName . '.pdf'));
             readfile(storage_path('laragent/pdf/'.$pdfFileName));
             return true;
         }
@@ -853,5 +857,15 @@ class SzamlaAgentResponse
             $data = $response['body'];
         }
         return $data;
+    }
+
+    /**
+     * Visszaadja az aktuális számlázz.hu session id-t.
+     * Ha a korábban beállított sessionId-hoz tartozó számlázz.hu session lejárt, új session ID-t ad vissza.
+     * @return string
+     */
+    public function getCookieSessionId()
+    {
+        return $this->agent->getCookieSessionId();
     }
 }

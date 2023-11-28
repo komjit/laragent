@@ -129,7 +129,11 @@ class SzamlaAgentUtil
     {
         $parsedDate = DateTime::createFromFormat('Y-m-d', $date);
 
-        if (DateTime::getLastErrors()['warning_count'] > 0 || !checkdate($parsedDate->format("m"), $parsedDate->format("d"), $parsedDate->format("Y"))) {
+        if (is_array(DateTime::getLastErrors()) && \DateTime::getLastErrors()['warning_count'] > 0) {
+            return false;
+        }
+
+        if (!checkdate($parsedDate->format("m"), $parsedDate->format("d"), $parsedDate->format("Y"))) {
             return false;
         }
 
@@ -170,7 +174,7 @@ class SzamlaAgentUtil
         }
 
         $fileName = $prefix . '-' . strtolower($name) . '-' . self::getDateTimeWithMilliseconds() . '.xml';
-        return base_path().SzamlaAgent::XML_FILE_SAVE_PATH.DIRECTORY_SEPARATOR.$fileName;
+        return self::getAbsPath(SzamlaAgent::XML_FILE_SAVE_PATH, $fileName);
     }
 
 

@@ -22,6 +22,13 @@ class ReceiptItem extends Item
     protected $ledgerData;
 
     /**
+     * Nyugta tétel megjegyzés
+     *
+     * @var string
+     */
+    protected $comment;
+
+    /**
      * Nyugtatétel példányosítás
      *
      * @param string $name tétel név
@@ -58,6 +65,10 @@ class ReceiptItem extends Item
         $data['afa'] = SzamlaAgentUtil::doubleFormat($this->getVatAmount());
         $data['brutto'] = SzamlaAgentUtil::doubleFormat($this->getGrossAmount());
 
+        if (SzamlaAgentUtil::isNotBlank($this->getComment())) {
+            $data['megjegyzes'] = $this->getComment();
+        }
+
         if (SzamlaAgentUtil::isNotNull($this->getLedgerData())) {
             $data['fokonyv'] = $this->getLedgerData()->buildXmlData();
         }
@@ -79,5 +90,21 @@ class ReceiptItem extends Item
     public function setLedgerData(ReceiptItemLedger $ledgerData)
     {
         $this->ledgerData = $ledgerData;
+    }
+
+    /**
+     * @return string
+     */
+    public function getComment()
+    {
+        return $this->comment;
+    }
+
+    /**
+     * @param string $comment
+     */
+    public function setComment($comment)
+    {
+        $this->comment = $comment;
     }
 }

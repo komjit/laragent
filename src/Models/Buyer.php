@@ -85,6 +85,13 @@ class Buyer
     protected $taxNumber;
 
     /**
+     * Csoport azonosító
+     *
+     * @var string
+     */
+    protected $groupIdentifier;
+
+    /**
      * Vevó EU-s adószáma
      *
      * @var string
@@ -225,6 +232,7 @@ class Buyer
                 case 'city':
                 case 'address':
                 case 'taxNumber':
+                case 'groupIdentifier':
                 case 'taxNumberEU':
                 case 'postalName':
                 case 'postalCountry':
@@ -279,10 +287,11 @@ class Buyer
 
                 if (SzamlaAgentUtil::isNotBlank($this->getEmail())) $data["email"] = $this->getEmail();
 
-                $data["sendEmail"] = $this->isSendEmail();
+                $data["sendEmail"] = $this->isSendEmail() ? true : false;
 
                 if (SzamlaAgentUtil::isNotBlank($this->getTaxPayer())) $data["adoalany"] = $this->getTaxPayer();
                 if (SzamlaAgentUtil::isNotBlank($this->getTaxNumber())) $data["adoszam"] = $this->getTaxNumber();
+                if (SzamlaAgentUtil::isNotBlank($this->getGroupIdentifier())) $data["csoportazonosito"] = $this->getGroupIdentifier();
                 if (SzamlaAgentUtil::isNotBlank($this->getTaxNumberEU())) $data["adoszamEU"] = $this->getTaxNumberEU();
                 if (SzamlaAgentUtil::isNotBlank($this->getPostalName())) $data["postazasiNev"] = $this->getPostalName();
                 if (SzamlaAgentUtil::isNotBlank($this->getPostalCountry())) $data["postazasiOrszag"] = $this->getPostalCountry();
@@ -488,6 +497,22 @@ class Buyer
     public function setTaxNumber($taxNumber)
     {
         $this->taxNumber = $taxNumber;
+    }
+
+    /**
+     * @return string
+     */
+    public function getGroupIdentifier()
+    {
+        return $this->groupIdentifier;
+    }
+
+    /**
+     * @param string $groupIdentifier
+     */
+    public function setGroupIdentifier($groupIdentifier)
+    {
+        $this->groupIdentifier = $groupIdentifier;
     }
 
     /**

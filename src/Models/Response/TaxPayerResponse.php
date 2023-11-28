@@ -6,7 +6,17 @@ namespace KomjIT\LarAgent\Models\Response;
 /**
  * Egy adózó adatainak lekérésére adott választ reprezentáló osztály
  *
+ * FONTOS! Az adatok a NAV-tól érkeznek. A NAV bármikor változtathat az interface-en,
+ * illetve nem minden esetben adnak vissza címadatokat, így erre is fel kell készítened a kódot.
+ *
+ * Ha üzleti logikát építesz erre az interface-re, akkor javasoljuk saját XML feldolgozóval kezelni
+ * a NAV-tól érkező adatokat, felkészítve arra, hogy a NAV bármikor megváltoztathatja annak szerkezetét!
+ *
+ * A NAV-tól érkező nyers adatokat az alábbi példafájlban található módon kérdezheted le:
+ * @see examples/get_taxpayer.php
+ *
  * @package SzamlaAgent\Response
+ * @deprecated 2.9.10, use your own XML processor
  */
 class TaxPayerResponse
 {

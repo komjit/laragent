@@ -54,6 +54,13 @@ class InvoiceResponse
     protected $invoiceNumber;
 
     /**
+     * Számla azonosító
+     *
+     * @var int
+     */
+    protected $invoiceIdentifier;
+
+    /**
      * A válasz hibakódja
      *
      * @var string
@@ -124,6 +131,10 @@ class InvoiceResponse
 
             if (array_key_exists('szlahu_szamlaszam', $headers)) {
                 $response->setInvoiceNumber($headers['szlahu_szamlaszam']);
+            }
+
+            if (array_key_exists('szlahu_id', $headers)) {
+                $response->setInvoiceIdentifier($headers['szlahu_id']);
             }
 
             if (array_key_exists('szlahu_vevoifiokurl', $headers)) {
@@ -224,6 +235,24 @@ class InvoiceResponse
     }
 
     /**
+     * Visszaadja a számla azonosítót
+     *
+     * @return int
+     */
+    public function getInvoiceIdentifier()
+    {
+        return $this->invoiceIdentifier;
+    }
+
+    /**
+     * @param int $invoiceIdentifier
+     */
+    protected function setInvoiceIdentifier($invoiceIdentifier)
+    {
+        $this->invoiceIdentifier = $invoiceIdentifier;
+    }
+
+    /**
      * Visszaadja a válasz hibakódját
      *
      * @return string
@@ -260,11 +289,12 @@ class InvoiceResponse
     }
 
     /**
-     * @return bool|string
+     * @return false|string
      */
     public function getPdfFile()
     {
-        return base64_decode($this->getPdfData());
+        $pdfData = SzamlaAgentUtil::isNotNull($this->getPdfData()) ? $this->getPdfData() : '';
+        return base64_decode($pdfData);
     }
 
     /**

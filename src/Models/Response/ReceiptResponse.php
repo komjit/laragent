@@ -150,7 +150,7 @@ class ReceiptResponse
         $response = new ReceiptResponse();
 
         if ($type == SzamlaAgentResponse::RESULT_AS_TEXT) {
-            $params = $xmlData = new SimpleXMLElement(base64_decode($data['body']));
+            $params = $xmlData = new \SimpleXMLElement(base64_decode($data['body']));
             $data = SzamlaAgentUtil::toArray($params);
         }
 
@@ -411,7 +411,8 @@ class ReceiptResponse
      */
     public function getPdfFile()
     {
-        return base64_decode($this->getPdfData());
+        $pdfData = SzamlaAgentUtil::isNotNull($this->getPdfData()) ? $this->getPdfData() : '';
+        return base64_decode($pdfData);
     }
 
     /**

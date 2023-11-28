@@ -49,11 +49,10 @@ class SimpleXMLExtended extends SimpleXMLElement
     }
 
     /**
-     * @param string $name
-     * @param string $value [optional]
-     * @param string $namespace [optional]
-     *
-     * @return SimpleXMLElement|SimpleXMLExtended
+     * @param $name
+     * @param $value
+     * @param $namespace
+     * @return SimpleXMLElement|SimpleXMLExtended|null
      */
     public function addChild($name, $value = null, $namespace = null)
     {
