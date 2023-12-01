@@ -295,7 +295,7 @@ class SzamlaAgentUtil
      */
     public static function getXmlPath()
     {
-        return self::getBasePath() . DIRECTORY_SEPARATOR . SzamlaAgent::XML_FILE_SAVE_PATH;
+        return base_path() . DIRECTORY_SEPARATOR . SzamlaAgent::XML_FILE_SAVE_PATH;
     }
 
     /**
@@ -303,7 +303,7 @@ class SzamlaAgentUtil
      */
     public static function getPdfPath()
     {
-        return self::getBasePath() . DIRECTORY_SEPARATOR . SzamlaAgent::PDF_FILE_SAVE_PATH;
+        return base_path() . DIRECTORY_SEPARATOR . SzamlaAgent::PDF_FILE_SAVE_PATH;
     }
 
     /**
@@ -311,7 +311,7 @@ class SzamlaAgentUtil
      */
     public static function getLogPath()
     {
-        return self::getBasePath() . DIRECTORY_SEPARATOR . Log::LOG_PATH;
+        return base_path() . DIRECTORY_SEPARATOR . Log::LOG_PATH;
     }
 
     /**
