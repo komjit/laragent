@@ -342,9 +342,6 @@ class SzamlaAgentResponse
         $pdfFileName = $this->getPdfFileName(false);
 
         if (SzamlaAgentUtil::isNotBlank($pdfFileName)) {
-            header("Content-type:application/pdf");
-            header("Content-Disposition:attachment;filename=" . (is_null($fileName) ? $pdfFileName : $fileName . '.pdf'));
-            readfile(storage_path('laragent/pdf/'.$pdfFileName));
             return true;
         }
         return false;
