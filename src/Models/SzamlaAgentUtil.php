@@ -261,8 +261,7 @@ class SzamlaAgentUtil
      */
     public static function getAbsPath($dir, $fileName = '')
     {
-        $file = self::getBasePath() . DIRECTORY_SEPARATOR . $dir . DIRECTORY_SEPARATOR . $fileName;
-        return self::getRealPath($file);
+        return base_path($fileName);
     }
 
     /**
