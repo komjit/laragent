@@ -174,7 +174,7 @@ class SzamlaAgentUtil
         }
 
         $fileName = $prefix . '-' . strtolower($name) . '-' . self::getDateTimeWithMilliseconds() . '.xml';
-        return base_path(SzamlaAgent::XML_FILE_SAVE_PATH .' /' . $fileName);
+        return base_path(SzamlaAgent::XML_FILE_SAVE_PATH . $fileName);
     }
 
 
