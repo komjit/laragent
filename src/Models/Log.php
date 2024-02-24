@@ -164,7 +164,7 @@ class Log
                 $name = 'error';
                 break;
             case self::LOG_LEVEL_WARN:
-                $name = 'warn';
+                $name = 'alert';
                 break;
             case self::LOG_LEVEL_DEBUG:
                 $name = 'debug';
