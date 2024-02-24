@@ -2,6 +2,8 @@
 
 namespace KomjIT\LarAgent\Models;
 
+use Illuminate\Support\Facades\Log as LaravelLog;
+
 /**
  * A Számla Agent naplózását végző osztály
  *
@@ -141,7 +143,7 @@ class Log
         $logType = SzamlaAgentUtil::isNotBlank($log->getLogTypeStr($pType)) ? ' [' . $log->getLogTypeStr($pType) . '] ' : '';
         $message = '[' . date('Y-m-d H:i:s') . '] [' . $remoteAddr . ']' . $logType . $pMessage . PHP_EOL;
 
-        Log::channel(config('logging.default'))->{$logType}('SzamlazzHu:',
+        LaravelLog::channel(config('logging.default'))->{$logType}('SzamlazzHu:',
         [
             'method' => __METHOD__,
             'logText' => $message,
