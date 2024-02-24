@@ -207,7 +207,7 @@ class SzamlaAgentResponse
                                 $file = new File($tempFilePath);
 
                                 $disk = config('filesystems.default');
-                                Storage::disk($disk)->putFileAs('', $file, 'laragent/pdf/'.$this->getPdfFileName());
+                                Storage::disk($disk)->putFileAs('', $file, 'LarAgent/pdf/'.$this->getPdfFileName());
 
                                 unlink($tempFilePath);
 
