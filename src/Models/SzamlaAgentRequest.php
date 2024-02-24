@@ -7,6 +7,8 @@ use DOMDocument;
 use Exception;
 use KomjIT\LarAgent\Models\Document\Document;
 use ReflectionException;
+use Illuminate\Http\File;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * A Számla Agent kéréseket kezelő osztály
