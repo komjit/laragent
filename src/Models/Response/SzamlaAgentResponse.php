@@ -324,7 +324,7 @@ class SzamlaAgentResponse
         }
 
         if ($withPath) {
-            return base_path().SzamlaAgent::PDF_FILE_SAVE_PATH.DIRECTORY_SEPARATOR.$this->getDocumentNumber() . '.pdf';
+            return $this->getDocumentNumber() . '.pdf';
         } else {
             return $documentNumber . '.pdf';
         }
