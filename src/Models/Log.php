@@ -140,10 +140,11 @@ class Log
     {
         $log = Log::get();
         $remoteAddr = (isset($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : '';
-        $logType = SzamlaAgentUtil::isNotBlank($log->getLogTypeStr($pType)) ? ' [' . $log->getLogTypeStr($pType) . '] ' : '';
+        $logLevel = $log->getLogTypeStr($pType);
+        $logType = SzamlaAgentUtil::isNotBlank($logLevel) ? ' [' . $logLevel . '] ' : '';
         $message = '[' . date('Y-m-d H:i:s') . '] [' . $remoteAddr . ']' . $logType . $pMessage . PHP_EOL;
 
-        LaravelLog::channel(config('logging.default'))->{$logType}('SzamlazzHu:',
+        LaravelLog::channel(config('logging.default'))->{$logLevel}('SzamlazzHu:',
         [
             'method' => __METHOD__,
             'logText' => $message,
