@@ -164,8 +164,7 @@ class SzamlaAgentUtil
      * @param string $name a fájl neve
      * @param object $entity osztály példány
      *
-     * @return string|bool
-     * @throws \ReflectionException
+     * @return string
      */
     public static function getXmlFileName($prefix, $name, $entity = null)
     {
@@ -173,8 +172,7 @@ class SzamlaAgentUtil
             $name .= '-' . (new ReflectionClass($entity))->getShortName();
         }
 
-        $fileName = $prefix . '-' . strtolower($name) . '-' . self::getDateTimeWithMilliseconds() . '.xml';
-        return base_path(SzamlaAgent::XML_FILE_SAVE_PATH . $fileName);
+        return $prefix . '-' . strtolower($name) . '-' . self::getDateTimeWithMilliseconds() . '.xml';
     }
 
 

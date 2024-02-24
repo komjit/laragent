@@ -289,15 +289,19 @@ class SzamlaAgentRequest
      */
     private function createXmlFile(DOMDocument $xml)
     {
-        $fileName = SzamlaAgentUtil::getXmlFileName('request', $this->getXmlName(), $this->getEntity());
-        $xmlSaved = $xml->save($fileName);
+        $filename = SzamlaAgentUtil::getXmlFileName('request', $this->getXmlName(), $this->getEntity());
+
+        $tempFile = tmpfile();
+        $tempFilePath = stream_get_meta_data($tempFile)['uri'];
+        $xmlSaved = $xml->save($tempFilePath);
 
         if (!$xmlSaved) {
             throw new SzamlaAgentException(SzamlaAgentException::XML_FILE_SAVE_FAILED);
         }
 
-        $this->setXmlFilePath(SzamlaAgentUtil::getRealPath($fileName));
-        $this->getAgent()->writeLog("XML fájl mentése sikeres: " . SzamlaAgentUtil::getRealPath($fileName), Log::LOG_LEVEL_DEBUG);
+        Storage::disk('s3')->putFileAs('LarAgent/xml', new File($tempFilePath), $filename);
+
+        $this->getAgent()->writeLog("XML fájl mentése sikeres: " . SzamlaAgentUtil::getRealPath($filename), Log::LOG_LEVEL_DEBUG);
     }
 
     /**
