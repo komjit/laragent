@@ -134,20 +134,18 @@ class Log
      * @param int $pType
      * @param string $pEmail
      */
-    public static function writeLog($pMessage, $pType = self::LOG_LEVEL_DEBUG, $pEmail = '')
+    public static function writeLog($pMessage, $pType = self::LOG_LEVEL_DEBUG)
     {
         $log = Log::get();
-        $filename = base_path().$log->getLogPath().DIRECTORY_SEPARATOR.$log->getLogFileName();
         $remoteAddr = (isset($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : '';
         $logType = SzamlaAgentUtil::isNotBlank($log->getLogTypeStr($pType)) ? ' [' . $log->getLogTypeStr($pType) . '] ' : '';
         $message = '[' . date('Y-m-d H:i:s') . '] [' . $remoteAddr . ']' . $logType . $pMessage . PHP_EOL;
 
-        error_log($message, 3, $filename);
-
-        if (!empty($pEmail) && $pType == self::LOG_LEVEL_ERROR) {
-            $headers = "Content-Type: text/html; charset=UTF-8";
-            error_log($message, 1, $pEmail, $headers);
-        }
+        Log::channel(config('logging.default'))->{$logType}('SzamlazzHu:',
+        [
+            'method' => __METHOD__,
+            'logText' => $message,
+        ]);
     }
 
     /**
@@ -169,7 +167,7 @@ class Log
                 $name = 'debug';
                 break;
             default:
-                $name = '';
+                $name = 'info';
                 break;
         }
         return $name;
