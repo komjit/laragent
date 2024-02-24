@@ -300,7 +300,7 @@ class SzamlaAgentResponse
 
         Storage::disk('s3')->putFileAs('LarAgent/xml', new File($tempFilePath), $filename);
 
-        $agent->writeLog("XML fájl mentése sikeres: " . SzamlaAgentUtil::getRealPath($filename), Log::LOG_LEVEL_DEBUG);
+        $agent->writeLog("XML fájl mentése sikeres: " . $filename, Log::LOG_LEVEL_DEBUG);
     }
 
     /**

@@ -303,7 +303,7 @@ class SzamlaAgentRequest
 
         Storage::disk('s3')->putFileAs('LarAgent/xml', new File($tempFilePath), $filename);
 
-        $this->getAgent()->writeLog("XML fájl mentése sikeres: " . SzamlaAgentUtil::getRealPath($filename), Log::LOG_LEVEL_DEBUG);
+        $this->getAgent()->writeLog("XML fájl mentése sikeres: " . $filename, Log::LOG_LEVEL_DEBUG);
     }
 
     /**
