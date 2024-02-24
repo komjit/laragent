@@ -288,13 +288,15 @@ class SzamlaAgentResponse
                 throw new SzamlaAgentException(SzamlaAgentException::RESPONSE_TYPE_NOT_EXISTS . " ($type)");
         }
 
-        $fileName = SzamlaAgentUtil::getXmlFileName('response', $name . $postfix, $agent->getRequest()->getEntity());
-        $xmlSaved = $xml->save($fileName);
+        $filename = SzamlaAgentUtil::getXmlFileName('response', $name . $postfix, $agent->getRequest()->getEntity());
 
-        if (!$xmlSaved) {
-            throw new SzamlaAgentException(SzamlaAgentException::XML_FILE_SAVE_FAILED);
-        }
-        $agent->writeLog("XML fájl mentése sikeres: " . SzamlaAgentUtil::getRealPath($fileName), Log::LOG_LEVEL_DEBUG);
+        $xmlContent = $xml->saveXML();
+        $tempPath = tempnam(sys_get_temp_dir(), $filename);
+        file_put_contents($tempPath, $xmlContent);
+
+        Storage::disk('s3')->putFileAs('LarAgent/xml', new File($tempPath), $filename);
+
+        $agent->writeLog("XML fájl mentése sikeres: " . SzamlaAgentUtil::getRealPath($filename), Log::LOG_LEVEL_DEBUG);
     }
 
     /**
