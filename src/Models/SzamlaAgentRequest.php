@@ -7,8 +7,6 @@ use DOMDocument;
 use Exception;
 use KomjIT\LarAgent\Models\Document\Document;
 use ReflectionException;
-use Illuminate\Http\File;
-use Illuminate\Support\Facades\Storage;
 
 /**
  * A Számla Agent kéréseket kezelő osztály
@@ -291,19 +289,15 @@ class SzamlaAgentRequest
      */
     private function createXmlFile(DOMDocument $xml)
     {
-        $filename = SzamlaAgentUtil::getXmlFileName('request', $this->getXmlName(), $this->getEntity());
-
-        $tempFile = tmpfile();
-        $tempFilePath = stream_get_meta_data($tempFile)['uri'];
-        $xmlSaved = $xml->save($tempFilePath);
+        $fileName = SzamlaAgentUtil::getXmlFileName('request', $this->getXmlName(), $this->getEntity());
+        $xmlSaved = $xml->save($fileName);
 
         if (!$xmlSaved) {
             throw new SzamlaAgentException(SzamlaAgentException::XML_FILE_SAVE_FAILED);
         }
 
-        Storage::disk('s3')->putFileAs('LarAgent/xml', new File($tempFilePath), $filename);
-
-        $this->getAgent()->writeLog("XML fájl mentése sikeres: " . $filename, Log::LOG_LEVEL_DEBUG);
+        $this->setXmlFilePath(SzamlaAgentUtil::getRealPath($fileName));
+        $this->getAgent()->writeLog("XML fájl mentése sikeres: " . SzamlaAgentUtil::getRealPath($fileName), Log::LOG_LEVEL_DEBUG);
     }
 
     /**
