@@ -299,7 +299,7 @@ class SzamlaAgentRequest
             throw new SzamlaAgentException(SzamlaAgentException::XML_FILE_SAVE_FAILED);
         }
 
-        Storage::disk('s3')->putFileAs('LarAgent/xml', new File($filePath), $filename);
+        Storage::disk('local')->putFileAs('LarAgent/xml', new File($filePath), $filename);
 
         $this->setXmlFilePath(SzamlaAgentUtil::getRealPath($filePath));
         $this->getAgent()->writeLog("XML fájl mentése sikeres: " . SzamlaAgentUtil::getRealPath($filePath), Log::LOG_LEVEL_DEBUG);

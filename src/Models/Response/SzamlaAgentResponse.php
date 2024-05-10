@@ -298,7 +298,7 @@ class SzamlaAgentResponse
             throw new SzamlaAgentException(SzamlaAgentException::XML_FILE_SAVE_FAILED);
         }
 
-        Storage::disk('s3')->putFileAs('LarAgent/xml', new File($tempFilePath), $filename);
+        Storage::disk('local')->putFileAs('LarAgent/xml', new File($tempFilePath), $filename);
 
         $agent->writeLog("XML fájl mentése sikeres: " . $filename, Log::LOG_LEVEL_DEBUG);
     }
