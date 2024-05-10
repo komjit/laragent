@@ -128,7 +128,7 @@ class SzamlaAgentResponse
     {
         $this->setAgent($agent);
         $this->setResponse($response);
-        $this->setXmlSchemaType($response['headers']['Schema-Type']);
+        $this->setXmlSchemaType($response['headers']['schema-type']);
     }
 
     /**
@@ -148,7 +148,7 @@ class SzamlaAgentResponse
         }
 
         if (isset($response['headers']) && !empty($response['headers'])) {
-            $headers = $response['headers'];
+            $headers = array_change_key_case($response['headers'], CASE_LOWER);
 
             if (isset($headers['szlahu_down']) && SzamlaAgentUtil::isNotBlank($headers['szlahu_down'])) {
                 throw new SzamlaAgentException(SzamlaAgentException::SYSTEM_DOWN, 500);
@@ -359,6 +359,9 @@ class SzamlaAgentResponse
         $pdfFileName = $this->getPdfFileName(false);
 
         if (SzamlaAgentUtil::isNotBlank($pdfFileName)) {
+            header("Content-type:application/pdf");
+            header("Content-Disposition:attachment;filename=" . (is_null($fileName) ? $pdfFileName : $fileName . '.pdf'));
+            readfile($this->getPdfFileAbsPath($pdfFileName));
             return true;
         }
         return false;
