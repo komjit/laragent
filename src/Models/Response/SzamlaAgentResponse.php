@@ -4,8 +4,6 @@
 namespace KomjIT\LarAgent\Models\Response;
 
 use Exception;
-use Illuminate\Http\File;
-use Illuminate\Support\Facades\Storage;
 use KomjIT\LarAgent\Models\Document\Document;
 use KomjIT\LarAgent\Models\Document\Invoice\Invoice;
 use KomjIT\LarAgent\Models\Header\InvoiceHeader;
@@ -200,16 +198,7 @@ class SzamlaAgentResponse
                             $this->setPdfFile($pdfData);
 
                             if ($agent->isPdfFileSave()) {
-
-                                $tempFilePath = tempnam(sys_get_temp_dir(), 'html');
-                                file_put_contents($tempFilePath, $pdfData);
-
-                                $file = new File($tempFilePath);
-
-                                $disk = config('filesystems.default');
-                                Storage::disk($disk)->putFileAs('', $file, 'LarAgent/pdf/'.$this->getPdfFileName());
-
-                                unlink($tempFilePath);
+                                $file = file_put_contents($this->getPdfFileName(), $pdfData);
 
                                 if ($file !== false) {
                                     $agent->writeLog(SzamlaAgentException::PDF_FILE_SAVE_SUCCESS . ': ' . $this->getPdfFileName(), Log::LOG_LEVEL_DEBUG);
@@ -289,16 +278,11 @@ class SzamlaAgentResponse
         }
 
         $filename = SzamlaAgentUtil::getXmlFileName('response', $name . $postfix, $agent->getRequest()->getEntity());
-
-        $tempFile = tmpfile();
-        $tempFilePath = stream_get_meta_data($tempFile)['uri'];
-        $xmlSaved = $xml->save($tempFilePath);
+        $xmlSaved = $xml->save($filename);
 
         if (!$xmlSaved) {
             throw new SzamlaAgentException(SzamlaAgentException::XML_FILE_SAVE_FAILED);
         }
-
-        Storage::disk('local')->putFileAs('LarAgent/xml', new File($tempFilePath), $filename);
 
         $agent->writeLog("XML fájl mentése sikeres: " . $filename, Log::LOG_LEVEL_DEBUG);
     }
