@@ -7,8 +7,6 @@ use DOMDocument;
 use Exception;
 use KomjIT\LarAgent\Models\Document\Document;
 use ReflectionException;
-use Illuminate\Http\File;
-use Illuminate\Support\Facades\Storage;
 
 /**
  * A Számla Agent kéréseket kezelő osztály
@@ -291,19 +289,15 @@ class SzamlaAgentRequest
      */
     private function createXmlFile(DOMDocument $xml)
     {
-        $filename = SzamlaAgentUtil::getXmlFileName('request', $this->getXmlName(), $this->getEntity());
-        $filePath = sys_get_temp_dir() . '/' . $filename;
-        $xmlSaved = $xml->save($filePath);
+        $fileName = SzamlaAgentUtil::getXmlFileName('request', $this->getXmlName(), $this->getEntity());
+        $xmlSaved = $xml->save($fileName);
 
         if (!$xmlSaved) {
             throw new SzamlaAgentException(SzamlaAgentException::XML_FILE_SAVE_FAILED);
         }
 
-        Storage::disk('local')->putFileAs('LarAgent/xml', new File($filePath), $filename);
-
-        $this->setXmlFilePath(SzamlaAgentUtil::getRealPath($filePath));
-        $this->getAgent()->writeLog("XML fájl mentése sikeres: " . SzamlaAgentUtil::getRealPath($filePath), Log::LOG_LEVEL_DEBUG);
-        unset($filePath);
+        $this->setXmlFilePath(SzamlaAgentUtil::getRealPath($fileName));
+        $this->getAgent()->writeLog("XML fájl mentése sikeres: " . SzamlaAgentUtil::getRealPath($fileName), Log::LOG_LEVEL_DEBUG);
     }
 
     /**
@@ -485,7 +479,6 @@ class SzamlaAgentRequest
 
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-            //curl_setopt($ch, CURLOPT_CAINFO, $agent->getCertificationFile());
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_HEADER, true);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
