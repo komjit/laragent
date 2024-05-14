@@ -126,7 +126,7 @@ class SzamlaAgentResponse
     {
         $this->setAgent($agent);
         $this->setResponse($response);
-        $this->setXmlSchemaType($response['headers']['schema-type']);
+        $this->setXmlSchemaType($response['headers']['Schema-Type']);
     }
 
     /**
