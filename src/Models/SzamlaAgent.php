@@ -687,43 +687,6 @@ class SzamlaAgent
     /**
      * @return string
      */
-    public function getCertificationFileName()
-    {
-        return self::CERTIFICATION_FILENAME;
-    }
-
-    /**
-     * @return string
-     */
-    public function getCertificationFile()
-    {
-        if ($this->getCertificationPath() == self::CERTIFICATION_PATH) {
-            return SzamlaAgentUtil::getAbsPath(self::CERTIFICATION_PATH, $this->getCertificationFileName());
-        } else {
-            return $this->getCertificationPath() . DIRECTORY_SEPARATOR . $this->getCertificationFileName();
-        }
-    }
-
-    /**
-     * @return string
-     */
-    public function getCertificationPath()
-    {
-        return $this->certificationPath;
-    }
-
-    /**
-     * @param   $certificationPath
-     * @example /var/www/new_path/certs
-     */
-    public function setCertificationPath($certificationPath)
-    {
-        $this->certificationPath = $certificationPath;
-    }
-
-    /**
-     * @return string
-     */
     public function getCookieFileName()
     {
         return $this->cookieHandler->getCookieFileName();

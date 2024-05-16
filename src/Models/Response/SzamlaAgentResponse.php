@@ -148,7 +148,7 @@ class SzamlaAgentResponse
         }
 
         if (isset($response['headers']) && !empty($response['headers'])) {
-            $headers = $response['headers'];
+            $headers = array_change_key_case($response['headers'], CASE_LOWER);
 
             if (isset($headers['szlahu_down']) && SzamlaAgentUtil::isNotBlank($headers['szlahu_down'])) {
                 throw new SzamlaAgentException(SzamlaAgentException::SYSTEM_DOWN, 500);
