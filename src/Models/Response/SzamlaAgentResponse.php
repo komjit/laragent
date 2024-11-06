@@ -126,7 +126,7 @@ class SzamlaAgentResponse
     {
         $this->setAgent($agent);
         $this->setResponse($response);
-        $this->setXmlSchemaType($response['headers']['schema-type']);
+        $this->setXmlSchemaType($response['headers']['Schema-Type']);
     }
 
     /**
@@ -343,7 +343,7 @@ class SzamlaAgentResponse
         $pdfFileName = $this->getPdfFileName(false);
 
         if (SzamlaAgentUtil::isNotBlank($pdfFileName)) {
-            header("Content-type:application/pdf");
+            header("Content-Type:application/pdf");
             header("Content-Disposition:attachment;filename=" . (is_null($fileName) ? $pdfFileName : $fileName . '.pdf'));
             readfile(SzamlaAgentUtil::getPdfPath().DIRECTORY_SEPARATOR.$pdfFileName);
             return true;
