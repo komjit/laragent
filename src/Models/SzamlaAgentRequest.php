@@ -576,13 +576,13 @@ class SzamlaAgentRequest
                 throw new SzamlaAgentException($error);
             } else {
                 $keys = implode(",", array_keys($headers));
-                if ($response['headers']['content-type'] == 'application/pdf' || (!preg_match('/(szlahu_)/', $keys, $matches))) {
+                if ($response['headers']['Content-Type'] == 'application/pdf' || (!preg_match('/(szlahu_)/', $keys, $matches))) {
                     $msg = $response['headers'];
                 } else {
                     $msg = $response;
                 }
 
-                $response['headers']['schema-type'] = $this->getXmlSchemaType();
+                $response['headers']['Schema-Type'] = $this->getXmlSchemaType();
                 $agent->writeLog("CURL adatok elküldése sikeresen befejeződött: " . print_r($msg, TRUE), Log::LOG_LEVEL_DEBUG);
             }
             curl_close($ch);
